@@ -35,6 +35,11 @@ The Sling Commons library contains:
 |0.x                          |AEM 6.0+
 
 
+### GitHub Repository
+
+Sources: https://github.com/wcm-io/io.wcm.sling.commons
+
+
 [apidocs]: apidocs/
 [changelog]: changes-report.html
 [caservice]: context-aware-services.html
