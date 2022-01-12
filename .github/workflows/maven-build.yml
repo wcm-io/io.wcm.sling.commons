@@ -44,13 +44,12 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: Build and verify (with SonarCloud)
+      - name: Build and verify
+        run: ./mvnw -s ./.maven-settings.xml -Pcontinuous-integration -B -U clean verify
+
+      - name: Analyze in SonarCloud
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./mvnw -s ./.maven-settings.xml -Pcontinuous-integration -B -U clean verify sonar:sonar -Dsonar.projectKey=${{github.repository_owner}}_${{github.event.repository.name}} -Dsonar.projectName=${{github.event.repository.name}}
+        run:  ([ -z $SONAR_TOKEN ] || ./mvnw -s ./.maven-settings.xml -Pcontinuous-integration -B sonar:sonar -Dsonar.projectKey=${{github.repository_owner}}_${{github.event.repository.name}} -Dsonar.projectName=${{github.event.repository.name}})
         if: ${{ matrix.java == '11' && matrix.os == 'ubuntu-latest' }}
-
-      - name: Build and verify (without SonarCloud)
-        run: ./mvnw -s ./.maven-settings.xml -Pcontinuous-integration -B -U clean verify
-        if: ${{ matrix.java != '11' || matrix.os != 'ubuntu-latest' }}
