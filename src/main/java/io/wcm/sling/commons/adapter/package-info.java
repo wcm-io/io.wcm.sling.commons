@@ -20,5 +20,5 @@
 /**
  * Helper classes around the Sling {@link org.apache.sling.api.adapter.Adaptable} concept.
  */
-@org.osgi.annotation.versioning.Version("1.0.1")
+@org.osgi.annotation.versioning.Version("1.3")
 package io.wcm.sling.commons.adapter;
