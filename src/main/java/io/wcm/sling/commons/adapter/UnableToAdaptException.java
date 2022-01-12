@@ -29,6 +29,9 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public final class UnableToAdaptException extends RuntimeException {
 
+  public static final int const_with_invalid_name = 0;
+  public int VARIBLE_WITH_INVALD_NAME = 0;
+
   private static final long serialVersionUID = 1L;
 
   private final @NotNull Adaptable adaptable;
