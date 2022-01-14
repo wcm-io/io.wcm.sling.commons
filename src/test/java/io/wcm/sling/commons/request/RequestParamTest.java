@@ -21,7 +21,9 @@ package io.wcm.sling.commons.request;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -71,7 +73,6 @@ class RequestParamTest {
     request.setParameterMap(paramMap);
   }
 
-  @SuppressWarnings("unused")
   protected Map<String, Object> getParamMap() {
     return ImmutableMap.<String, Object>builder()
         .put(STRING_PARAM, new String[] {
@@ -141,6 +142,18 @@ class RequestParamTest {
   void testGetIntDefault() {
     assertEquals(INTEGER_VALUE, RequestParam.getInt(request, INTEGER_PARAM, 25));
     assertEquals(25, RequestParam.getInt(request, PARAM_NONEXISTING, 25));
+  }
+
+  @Test
+  void testGetBoolean() {
+    assertEquals(BOOLEAN_VALUE, RequestParam.getBoolean(request, BOOLEAN_PARAM));
+    assertFalse(RequestParam.getBoolean(request, PARAM_NONEXISTING));
+  }
+
+  @Test
+  void testGetBooleanDefault() {
+    assertEquals(BOOLEAN_VALUE, RequestParam.getBoolean(request, BOOLEAN_PARAM, true));
+    assertTrue(RequestParam.getBoolean(request, PARAM_NONEXISTING, true));
   }
 
   @Test

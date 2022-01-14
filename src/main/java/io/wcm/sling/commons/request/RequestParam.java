@@ -243,7 +243,11 @@ public final class RequestParam {
    */
   public static boolean getBoolean(@NotNull ServletRequest request, @NotNull String param, boolean defaultValue) {
     String value = request.getParameter(param);
-    return BooleanUtils.toBoolean(value);
+    Boolean boolValue = BooleanUtils.toBooleanObject(value);
+    if (boolValue != null) {
+      return boolValue.booleanValue();
+    }
+    return defaultValue;
   }
 
   /**
