@@ -47,8 +47,8 @@ class ContextAwareServiceTracker implements ServiceTrackerCustomizer<ContextAwar
   ContextAwareServiceTracker(String serviceClassName, BundleContext bundleContext, PathPreprocessor pathPreprocessor) {
     this.bundleContext = bundleContext;
     this.pathPreprocessor = pathPreprocessor;
-    this.rankedServices = new RankedServices<ServiceInfo>(Order.DESCENDING);
-    this.serviceTracker = new ServiceTracker<ContextAwareService, ServiceInfo>(bundleContext, serviceClassName, this);
+    this.rankedServices = new RankedServices<>(Order.DESCENDING);
+    this.serviceTracker = new ServiceTracker<>(bundleContext, serviceClassName, this);
     this.serviceTracker.open();
   }
 

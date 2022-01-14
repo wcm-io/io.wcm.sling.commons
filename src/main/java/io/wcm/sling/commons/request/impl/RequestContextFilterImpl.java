@@ -43,12 +43,8 @@ import io.wcm.sling.commons.request.RequestContext;
 })
 public final class RequestContextFilterImpl implements RequestContext, Filter {
 
-  private static final ThreadLocal<Stack<SlingHttpServletRequest>> REQUEST_THREADLOCAL = new ThreadLocal<Stack<SlingHttpServletRequest>>() {
-    @Override
-    protected Stack<SlingHttpServletRequest> initialValue() {
-      return new Stack<SlingHttpServletRequest>();
-    }
-  };
+  @SuppressWarnings("java:S5164") // request are short-lived objects, no need to call remove explicitely
+  private static final ThreadLocal<Stack<SlingHttpServletRequest>> REQUEST_THREADLOCAL = ThreadLocal.withInitial(Stack::new);
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {

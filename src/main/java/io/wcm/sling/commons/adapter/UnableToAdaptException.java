@@ -28,9 +28,9 @@ import org.osgi.annotation.versioning.ProviderType;
  */
 @ProviderType
 public final class UnableToAdaptException extends RuntimeException {
-
   private static final long serialVersionUID = 1L;
 
+  @SuppressWarnings("java:S1948") // we cannot ensure this is always serializable
   private final @NotNull Adaptable adaptable;
   private final @NotNull Class<?> type;
 

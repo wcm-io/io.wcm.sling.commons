@@ -175,14 +175,14 @@ public final class ResourceType {
     // resource type of the resource, then its super resource type and continues
     //  to go up the resource super type hierarchy.
     boolean result = false;
-    if (ResourceType.equals(resourceType, resource.getResourceType())) {
+    if (ResourceType.equals(resourceType, resource.getResourceType(), resource.getResourceResolver())) {
       result = true;
     }
     else {
       Set<String> superTypesChecked = new HashSet<>();
       String superType = resolver.getParentResourceType(resource);
       while (!result && superType != null) {
-        if (ResourceType.equals(resourceType, superType)) {
+        if (ResourceType.equals(resourceType, superType, resource.getResourceResolver())) {
           result = true;
         }
         else {

@@ -42,7 +42,7 @@ import org.osgi.annotation.versioning.ConsumerType;
  */
 //CHECKSTYLE:OFF
 @ConsumerType
-@SuppressWarnings("PMD.ConstantsInInterface")
+@SuppressWarnings({ "PMD.ConstantsInInterface", "java:S1214" })
 public interface ContextAwareService {
 //CHECKSTYLE:ON
 

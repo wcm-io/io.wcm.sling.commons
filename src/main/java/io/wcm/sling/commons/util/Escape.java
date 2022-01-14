@@ -46,6 +46,7 @@ public final class Escape {
    * @return URL-encoded string - or empty string if the specified value was null
    * @throws RuntimeException in the very unlikely case that UTF-8 is not supported on the current system
    */
+  @SuppressWarnings("java:S112") // allow generic exception
   public static @NotNull String urlEncode(@Nullable String value) {
     if (value == null) {
       return "";
@@ -122,7 +123,7 @@ public final class Escape {
    * @param value Any string.
    * @return A valid string literal suitable for use in JCR contains clauses, including enclosing quotes.
    */
-  @SuppressWarnings("null")
+  @SuppressWarnings({ "null", "java:S2589" }) // extra null checks for backward compatibility
   public static @NotNull String jcrQueryContainsExpr(@NotNull String value) {
     if (value == null || value.isEmpty()) {
       throw new IllegalArgumentException("Invalid query string value: " + value);
