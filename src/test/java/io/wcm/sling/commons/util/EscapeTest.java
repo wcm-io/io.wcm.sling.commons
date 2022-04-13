@@ -21,12 +21,17 @@ package io.wcm.sling.commons.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link Escape} class.
@@ -103,4 +108,20 @@ class EscapeTest {
     });
   }
 
+  @ParameterizedTest(name = "Escape {0} should give {1}")
+  @MethodSource
+  void testJcrQueryLikeExpr(final String expected, final String value) {
+    assertEquals(expected, Escape.jcrQueryLikeExpr(value));
+  }
+
+  static Stream<Arguments> testJcrQueryLikeExpr() {
+    return Stream.of(
+        arguments("test", "test"),
+        arguments("\\_", "_"),
+        arguments("\\\\\\_", "\\_"),
+        arguments("\\%\\_", "%_"),
+        arguments("\\_\\%", "_%"),
+        arguments("\\_\\_\\_\\_\\_\\%\\%\\%\\%\\%\\%", "_____%%%%%%")
+    );
+  }
 }
