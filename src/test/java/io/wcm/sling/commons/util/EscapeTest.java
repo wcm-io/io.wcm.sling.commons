@@ -108,7 +108,7 @@ class EscapeTest {
     });
   }
 
-  @ParameterizedTest(name = "Escape {0} should give {1}")
+  @ParameterizedTest(name = "Escape {1} should give {0}")
   @MethodSource
   void testJcrQueryLikeExpr(final String expected, final String value) {
     assertEquals(expected, Escape.jcrQueryLikeExpr(value));
