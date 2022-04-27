@@ -24,6 +24,9 @@
   <body>
 
     <release version="1.5.0" date="not released">
+      <action type="add" dev="henrykuijpers" issue="WSLI-7">
+        Add Escape.jcrQueryLikeString.
+      </action>
       <action type="update" dev="sseifert">
         Switch to AEM 6.5 as minimum version.
       </action>
