@@ -110,11 +110,11 @@ class EscapeTest {
 
   @ParameterizedTest(name = "Escape {1} should give {0}")
   @MethodSource
-  void testJcrQueryLikeExpr(final String expected, final String value) {
-    assertEquals(expected, Escape.jcrQueryLikeExpr(value));
+  void testJcrQueryLikeString(final String expected, final String value) {
+    assertEquals(expected, Escape.jcrQueryLikeString(value));
   }
 
-  static Stream<Arguments> testJcrQueryLikeExpr() {
+  static Stream<Arguments> testJcrQueryLikeString() {
     return Stream.of(
         arguments("test", "test"),
         arguments("\\_", "_"),
@@ -124,4 +124,5 @@ class EscapeTest {
         arguments("\\_\\_\\_\\_\\_\\%\\%\\%\\%\\%\\%", "_____%%%%%%")
     );
   }
+
 }

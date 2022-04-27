@@ -19,17 +19,18 @@
  */
 package io.wcm.sling.commons.util;
 
-import com.google.common.collect.ImmutableSet;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.util.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.annotation.versioning.ProviderType;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Set;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Encoding utility functions.
@@ -144,14 +145,15 @@ public final class Escape {
    * @param value Any string.
    * @return A valid string literal suitable for use as part of JCR like clauses, excluding enclosing quotes, excluding quote escaping.
    */
-  public static @NotNull String jcrQueryLikeExpr(@NotNull final String value) {
+  public static @NotNull String jcrQueryLikeString(@NotNull final String value) {
     final StringBuilder escaped = new StringBuilder();
     for (final char c : value.toCharArray()) {
       if (LIKE_SPECIAL_CHARACTERS.contains(c) || c == LIKE_ESCAPE_CHARACTER) {
-        escaped.append((Character) LIKE_ESCAPE_CHARACTER);
+        escaped.append((Character)LIKE_ESCAPE_CHARACTER);
       }
       escaped.append(c);
     }
     return escaped.toString();
   }
+
 }
