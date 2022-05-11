@@ -52,7 +52,7 @@ class ServiceInfo {
   private final String key;
   private boolean valid = true;
 
-  private static final Logger log = LoggerFactory.getLogger(ContextAwareServiceTracker.class);
+  private static final Logger log = LoggerFactory.getLogger(ServiceInfo.class);
 
   ServiceInfo(ServiceReference<?> serviceReference, BundleContext bundleContext) {
     this.service = validateAndGetService(serviceReference, bundleContext);
@@ -69,9 +69,8 @@ class ServiceInfo {
     if (serviceObject instanceof ContextAwareService) {
       return (ContextAwareService)serviceObject;
     }
-    log.warn("Service implementation " + (serviceObject != null ? serviceObject.getClass().getName() : "")
-        + " does not implement the ContextAwareService interface"
-        + " - service will be ignored for context-aware service resolution.");
+    log.warn("Service implementation {} does not implement the ContextAwareService interface"
+        + " - service will be ignored for context-aware service resolution.", (serviceObject != null ? serviceObject.getClass().getName() : ""));
     valid = false;
     return null;
   }
@@ -109,9 +108,8 @@ class ServiceInfo {
         }
       }
     }
-    log.warn("Invalid " + patternPropertyName + " regex pattern '" + value + "' - "
-        + "service " + service.getClass().getName() + " from bundle " + serviceReference.getBundle().getSymbolicName() + " "
-        + "will be ignored for context-aware service resolution.");
+    log.warn("Invalid {} regex pattern '{}' - service {} from bundle {} will be ignored for context-aware service resolution.",
+        patternPropertyName, value, service.getClass().getName(), serviceReference.getBundle().getSymbolicName());
     valid = false;
     return null;
   }
@@ -191,6 +189,8 @@ class ServiceInfo {
     }
     return builder.build();
   }
+
+  @SuppressWarnings("java:S1171")
   private static final ToStringStyle TO_STRING_STYLE = new ToStringStyle() {
     private static final long serialVersionUID = 1L;
     {

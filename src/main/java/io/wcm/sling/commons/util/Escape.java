@@ -21,19 +21,24 @@ package io.wcm.sling.commons.util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Set;
 
-import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.util.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.annotation.versioning.ProviderType;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
  * Encoding utility functions.
  */
 @ProviderType
 public final class Escape {
+  private static final char LIKE_ESCAPE_CHARACTER = '\\';
+  private static final Set<Character> LIKE_SPECIAL_CHARACTERS = ImmutableSet.of('%', '_');
 
   private Escape() {
     // Utility class - no instancing allowed
@@ -46,12 +51,13 @@ public final class Escape {
    * @return URL-encoded string - or empty string if the specified value was null
    * @throws RuntimeException in the very unlikely case that UTF-8 is not supported on the current system
    */
+  @SuppressWarnings("java:S112") // allow generic exception
   public static @NotNull String urlEncode(@Nullable String value) {
     if (value == null) {
       return "";
     }
     try {
-      return URLEncoder.encode(value, CharEncoding.UTF_8);
+      return URLEncoder.encode(value, StandardCharsets.UTF_8.name());
     }
     catch (UnsupportedEncodingException ex) {
       throw new RuntimeException(ex);
@@ -122,13 +128,32 @@ public final class Escape {
    * @param value Any string.
    * @return A valid string literal suitable for use in JCR contains clauses, including enclosing quotes.
    */
-  @SuppressWarnings("null")
+  @SuppressWarnings({ "null", "java:S2589" }) // extra null checks for backward compatibility
   public static @NotNull String jcrQueryContainsExpr(@NotNull String value) {
     if (value == null || value.isEmpty()) {
       throw new IllegalArgumentException("Invalid query string value: " + value);
     }
     // Escape special characters not allowed in jcr:contains expression
     return jcrQueryLiteral(Text.escapeIllegalXpathSearchChars(value));
+  }
+
+  /**
+   * Convert a string to a JCR search expression literal, suitable for use in jcr:like() (inside XPath)
+   * or contains (JCR-SQL2). The characters _ and % have special meaning, and may be escaped with a backslash
+   * to obtain their literal value.
+   * See JSR-283 specification v2.0, Section 4.6.6.19.
+   * @param value Any string.
+   * @return A valid string literal suitable for use as part of JCR like clauses, excluding enclosing quotes, excluding quote escaping.
+   */
+  public static @NotNull String jcrQueryLikeString(@NotNull final String value) {
+    final StringBuilder escaped = new StringBuilder();
+    for (final char c : value.toCharArray()) {
+      if (LIKE_SPECIAL_CHARACTERS.contains(c) || c == LIKE_ESCAPE_CHARACTER) {
+        escaped.append((Character)LIKE_ESCAPE_CHARACTER);
+      }
+      escaped.append(c);
+    }
+    return escaped.toString();
   }
 
 }

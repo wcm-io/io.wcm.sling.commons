@@ -70,7 +70,7 @@ public final class ImmutableValueMap implements ValueMap {
   }
 
   @Override
-  public <T> T get(@NotNull String name, T defaultValue) {
+  public @NotNull <T> T get(@NotNull String name, @NotNull T defaultValue) {
     return this.map.get(name, defaultValue);
   }
 
@@ -129,7 +129,7 @@ public final class ImmutableValueMap implements ValueMap {
 
   @Override
   public String toString() {
-    SortedMap sortedMap = ImmutableSortedMap.<String, Object>copyOf(this.map);
+    SortedMap<String, Object> sortedMap = ImmutableSortedMap.copyOf(this.map);
     return "{" + Joiner.on(",").withKeyValueSeparator("=").join(sortedMap) + "}";
   }
 
@@ -239,7 +239,8 @@ public final class ImmutableValueMap implements ValueMap {
    * @return ImmutableValueMap
    * @throws IllegalArgumentException if duplicate keys are provided
    */
-  public static @NotNull ImmutableValueMap of( //NOPMD
+  @SuppressWarnings({ "java:S107", "PMD.UseObjectForClearerAPI" })
+  public static @NotNull ImmutableValueMap of(
       @NotNull String k1, @NotNull Object v1,
       @NotNull String k2, @NotNull Object v2,
       @NotNull String k3, @NotNull Object v3,
@@ -262,7 +263,8 @@ public final class ImmutableValueMap implements ValueMap {
    * @return ImmutableValueMap
    * @throws IllegalArgumentException if duplicate keys are provided
    */
-  public static ImmutableValueMap of( //NOPMD
+  @SuppressWarnings({ "java:S107", "PMD.UseObjectForClearerAPI" })
+  public static ImmutableValueMap of(
       @NotNull String k1, @NotNull Object v1,
       @NotNull String k2, @NotNull Object v2,
       @NotNull String k3, @NotNull Object v3,

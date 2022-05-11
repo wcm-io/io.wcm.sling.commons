@@ -112,7 +112,7 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
       log.trace("Resolve all {} for resource {}", serviceClass.getName(), (resource != null ? resource.getPath() : "null"));
     }
     ContextAwareServiceTracker serviceTracker = getServiceTracker(serviceClass);
-    return new ResolveAllResultImpl(
+    return new ResolveAllResultImpl<>(
         serviceTracker.resolve(resource).map(serviceInfo -> (T)serviceInfo.getService()),
         () -> buildCombinedKey(serviceTracker, serviceTracker.resolve(resource)));
   }
@@ -141,6 +141,7 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
     return null;
   }
 
+  @SuppressWarnings("java:S112") // allow generic exception
   private ContextAwareServiceTracker getServiceTracker(Class<?> serviceClass) {
     try {
       return serviceTrackerCache.get(serviceClass.getName());

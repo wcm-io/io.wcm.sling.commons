@@ -21,12 +21,17 @@ package io.wcm.sling.commons.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Stream;
 
-import org.apache.commons.lang3.CharEncoding;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link Escape} class.
@@ -36,11 +41,11 @@ class EscapeTest {
 
   @Test
   void testUrlEncode() throws UnsupportedEncodingException {
-    assertEquals(URLEncoder.encode("abc", CharEncoding.UTF_8), Escape.urlEncode("abc"));
-    assertEquals(URLEncoder.encode("Abc_äöüÄÖÜß", CharEncoding.UTF_8), Escape.urlEncode("Abc_äöüÄÖÜß"));
-    assertEquals(URLEncoder.encode("Der Jodelkaiser", CharEncoding.UTF_8), Escape.urlEncode("Der Jodelkaiser"));
-    assertEquals(URLEncoder.encode("Der  Jodelkaiser", CharEncoding.UTF_8), Escape.urlEncode("Der  Jodelkaiser"));
-    assertEquals(URLEncoder.encode("äölsa§$5x !?_", CharEncoding.UTF_8), Escape.urlEncode("äölsa§$5x !?_"));
+    assertEquals(URLEncoder.encode("abc", StandardCharsets.UTF_8.name()), Escape.urlEncode("abc"));
+    assertEquals(URLEncoder.encode("Abc_äöüÄÖÜß", StandardCharsets.UTF_8.name()), Escape.urlEncode("Abc_äöüÄÖÜß"));
+    assertEquals(URLEncoder.encode("Der Jodelkaiser", StandardCharsets.UTF_8.name()), Escape.urlEncode("Der Jodelkaiser"));
+    assertEquals(URLEncoder.encode("Der  Jodelkaiser", StandardCharsets.UTF_8.name()), Escape.urlEncode("Der  Jodelkaiser"));
+    assertEquals(URLEncoder.encode("äölsa§$5x !?_", StandardCharsets.UTF_8.name()), Escape.urlEncode("äölsa§$5x !?_"));
   }
 
   @Test
@@ -101,6 +106,23 @@ class EscapeTest {
     assertThrows(IllegalArgumentException.class, () -> {
       Escape.jcrQueryContainsExpr("");
     });
+  }
+
+  @ParameterizedTest(name = "Escape {1} should give {0}")
+  @MethodSource
+  void testJcrQueryLikeString(final String expected, final String value) {
+    assertEquals(expected, Escape.jcrQueryLikeString(value));
+  }
+
+  static Stream<Arguments> testJcrQueryLikeString() {
+    return Stream.of(
+        arguments("test", "test"),
+        arguments("\\_", "_"),
+        arguments("\\\\\\_", "\\_"),
+        arguments("\\%\\_", "%_"),
+        arguments("\\_\\%", "_%"),
+        arguments("\\_\\_\\_\\_\\_\\%\\%\\%\\%\\%\\%", "_____%%%%%%")
+    );
   }
 
 }

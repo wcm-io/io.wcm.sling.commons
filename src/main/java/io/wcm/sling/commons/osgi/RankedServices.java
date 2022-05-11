@@ -78,6 +78,7 @@ public final class RankedServices<T> implements Iterable<T> {
    * @param service Service instance
    * @param props Service reference properties
    */
+  @SuppressWarnings("java:S1172")
   public void unbind(T service, Map<String, Object> props) {
     synchronized (serviceMap) {
       serviceMap.remove(ServiceUtil.getComparableForServiceRanking(props));
@@ -89,7 +90,7 @@ public final class RankedServices<T> implements Iterable<T> {
    * Update list of sorted services by copying it from the array and making it unmodifiable.
    */
   private void updateSortedServices() {
-    List<T> copiedList = new ArrayList<T>(serviceMap.values());
+    List<T> copiedList = new ArrayList<>(serviceMap.values());
     sortedServices = Collections.unmodifiableList(copiedList);
     if (changeListener != null) {
       changeListener.changed();

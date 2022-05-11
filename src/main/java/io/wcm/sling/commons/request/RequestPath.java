@@ -51,7 +51,7 @@ public final class RequestPath {
    * @param expectedSelectors Selectors string to check for.
    * @return true if the selector was found
    */
-  @SuppressWarnings("null")
+  @SuppressWarnings({ "null", "java:S2589" }) // extra null checks for backward compatibility
   public static boolean hasAnySelector(@NotNull SlingHttpServletRequest request, @NotNull String @NotNull... expectedSelectors) {
     String[] selectors = request.getRequestPathInfo().getSelectors();
     if (selectors != null && expectedSelectors != null) {
