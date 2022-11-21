@@ -28,7 +28,11 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.adapter.Adaptable;
 import org.apache.sling.api.resource.Resource;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -91,30 +95,52 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
     this.serviceTrackerCache.invalidateAll();
   }
 
-  @SuppressWarnings({ "unchecked", "null" })
   @Override
   public <T extends ContextAwareService> T resolve(@NotNull Class<T> serviceClass, @NotNull Adaptable adaptable) {
+    return resolve(serviceClass, adaptable, (Filter)null);
+  }
+
+  @Override
+  public <T extends ContextAwareService> T resolve(@NotNull Class<T> serviceClass, @NotNull Adaptable adaptable,
+      @Nullable String filter) throws InvalidSyntaxException {
+    return resolve(serviceClass, adaptable, toFilter(filter));
+  }
+
+  @SuppressWarnings({ "unchecked", "null" })
+  private <T extends ContextAwareService> T resolve(@NotNull Class<T> serviceClass, @NotNull Adaptable adaptable,
+      @Nullable Filter filter) {
     Resource resource = getResource(adaptable);
     if (log.isTraceEnabled()) {
       log.trace("Resolve {} for resource {}", serviceClass.getName(), (resource != null ? resource.getPath() : "null"));
     }
     ContextAwareServiceTracker serviceTracker = getServiceTracker(serviceClass);
-    return serviceTracker.resolve(resource)
+    return serviceTracker.resolve(resource, filter)
         .map(serviceInfo -> (T)serviceInfo.getService())
         .findFirst().orElse(null);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <T extends ContextAwareService> @NotNull ResolveAllResult<T> resolveAll(@NotNull Class<T> serviceClass, @NotNull Adaptable adaptable) {
+    return resolveAll(serviceClass, adaptable, (Filter)null);
+  }
+
+  @Override
+  public <T extends ContextAwareService> @NotNull ResolveAllResult<T> resolveAll(@NotNull Class<T> serviceClass, @NotNull Adaptable adaptable,
+      @Nullable String filter) throws InvalidSyntaxException {
+    return resolveAll(serviceClass, adaptable, toFilter(filter));
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T extends ContextAwareService> @NotNull ResolveAllResult<T> resolveAll(@NotNull Class<T> serviceClass, @NotNull Adaptable adaptable,
+      @Nullable Filter filter) {
     Resource resource = getResource(adaptable);
     if (log.isTraceEnabled()) {
       log.trace("Resolve all {} for resource {}", serviceClass.getName(), (resource != null ? resource.getPath() : "null"));
     }
     ContextAwareServiceTracker serviceTracker = getServiceTracker(serviceClass);
     return new ResolveAllResultImpl<>(
-        serviceTracker.resolve(resource).map(serviceInfo -> (T)serviceInfo.getService()),
-        () -> buildCombinedKey(serviceTracker, serviceTracker.resolve(resource)));
+        serviceTracker.resolve(resource, filter).map(serviceInfo -> (T)serviceInfo.getService()),
+        () -> buildCombinedKey(serviceTracker, serviceTracker.resolve(resource, filter)));
   }
 
   private String buildCombinedKey(ContextAwareServiceTracker serviceTracker, Stream<ServiceInfo> result) {
@@ -153,6 +179,13 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
 
   ConcurrentMap<String, ContextAwareServiceTracker> getContextAwareServiceTrackerMap() {
     return serviceTrackerCache.asMap();
+  }
+
+  private static @Nullable Filter toFilter(@Nullable String filterString) throws InvalidSyntaxException {
+    if (filterString == null) {
+      return null;
+    }
+    return FrameworkUtil.createFilter(filterString);
   }
 
 }

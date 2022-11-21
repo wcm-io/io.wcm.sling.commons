@@ -23,6 +23,7 @@ import static io.wcm.sling.commons.caservice.ContextAwareService.PROPERTY_ACCEPT
 import static io.wcm.sling.commons.caservice.ContextAwareService.PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN;
 import static io.wcm.sling.commons.caservice.ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN;
 
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -32,7 +33,9 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.jetbrains.annotations.Nullable;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +48,8 @@ import io.wcm.sling.commons.caservice.ContextAwareService;
 class ServiceInfo {
 
   private final ContextAwareService service;
-  private final Map<String, Object> serviceProperties;
+  private final Map<String, Object> servicePropertiesMap;
+  private final Dictionary<String, Object> servicePropertiesDictionary;
   private final Pattern contextPathRegex;
   private final Pattern contextPathBlacklistRegex;
   private final boolean acceptsContextPathEmpty;
@@ -56,7 +60,8 @@ class ServiceInfo {
 
   ServiceInfo(ServiceReference<?> serviceReference, BundleContext bundleContext) {
     this.service = validateAndGetService(serviceReference, bundleContext);
-    this.serviceProperties = propertiesToMap(serviceReference);
+    this.servicePropertiesDictionary = serviceReference.getProperties();
+    this.servicePropertiesMap = propertiesToMap(serviceReference);
     this.contextPathRegex = validateAndParsePattern(serviceReference, PROPERTY_CONTEXT_PATH_PATTERN);
     this.contextPathBlacklistRegex = validateAndParsePattern(serviceReference, PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN);
     this.acceptsContextPathEmpty = validateAndGetBoolan(lookupServicePropertyBundleHeader(serviceReference, PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY));
@@ -137,7 +142,7 @@ class ServiceInfo {
    * @return Property map
    */
   public Map<String, Object> getServiceProperties() {
-    return this.serviceProperties;
+    return this.servicePropertiesMap;
   }
 
   /**
@@ -159,6 +164,18 @@ class ServiceInfo {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Checks if the services matched the given filter.
+   * @param filter OSGi filter. If null it matches always.
+   * @return true if matching
+   */
+  public boolean matchesFilter(@Nullable Filter filter) {
+    if (filter == null) {
+      return true;
+    }
+    return filter.match(servicePropertiesDictionary);
   }
 
   private String buildKey() {
