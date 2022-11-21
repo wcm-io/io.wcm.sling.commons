@@ -27,6 +27,7 @@ import org.apache.sling.api.resource.Resource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.annotation.versioning.ProviderType;
+import org.osgi.framework.InvalidSyntaxException;
 
 /**
  * Resolves the best-matching context-aware service implementation.
@@ -49,6 +50,23 @@ public interface ContextAwareServiceResolver {
   <T extends ContextAwareService> @Nullable T resolve(@NotNull Class<T> serviceClass, @NotNull Adaptable adaptable);
 
   /**
+   * Resolves the best-matching service implementation for the given resource context.
+   * Only implementations which accept the given context resource path (via the service properties defined in
+   * {@link ContextAwareService}) are considered as candidates.
+   * If multiple candidates exist the implementation with the highest service ranking is returned.
+   * @param serviceClass Service interface or class
+   * @param adaptable Adaptable which is either a {@link Resource} or {@link SlingHttpServletRequest}.
+   *          A resource instance is used directly for matching, in case of request the associated resource is used.
+   *          May be null if no context is available.
+   * @param filter OSGi filter expression or null for all services
+   * @param <T> Service interface or class
+   * @return Service implementation or null if no match found.
+   * @throws InvalidSyntaxException If the specified filter contains an invalid filter expression that cannot be parsed.
+   */
+  <T extends ContextAwareService> @Nullable T resolve(@NotNull Class<T> serviceClass, @NotNull Adaptable adaptable,
+      @Nullable String filter) throws InvalidSyntaxException;
+
+  /**
    * Resolves all matching service implementations for the given resource context.
    * Only implementations which accept the given context resource path (via the service properties defined in
    * {@link ContextAwareService}) are considered as candidates.
@@ -61,6 +79,23 @@ public interface ContextAwareServiceResolver {
    * @return Collection of all matching services
    */
   <T extends ContextAwareService> @NotNull ResolveAllResult<T> resolveAll(@NotNull Class<T> serviceClass, @NotNull Adaptable adaptable);
+
+  /**
+   * Resolves all matching service implementations for the given resource context.
+   * Only implementations which accept the given context resource path (via the service properties defined in
+   * {@link ContextAwareService}) are considered as candidates.
+   * The candidates are returned ordered descending by their service ranking.
+   * @param serviceClass Service interface or class
+   * @param adaptable Adaptable which is either a {@link Resource} or {@link SlingHttpServletRequest}.
+   *          A resource instance is used directly for matching, in case of request the associated resource is used.
+   *          May be null if no context is available.
+   * @param filter OSGi filter expression or null for all services
+   * @param <T> Service interface or class
+   * @return Collection of all matching services
+   * @throws InvalidSyntaxException If the specified filter contains an invalid filter expression that cannot be parsed.
+   */
+  <T extends ContextAwareService> @NotNull ResolveAllResult<T> resolveAll(@NotNull Class<T> serviceClass, @NotNull Adaptable adaptable,
+      @Nullable String filter) throws InvalidSyntaxException;
 
   /**
    * Result of the {@link ContextAwareServiceResolver#resolveAll(Class, Adaptable)} method.
