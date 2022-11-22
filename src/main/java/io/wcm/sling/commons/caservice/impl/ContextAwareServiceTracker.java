@@ -21,12 +21,11 @@ package io.wcm.sling.commons.caservice.impl;
 
 import java.util.stream.Stream;
 
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.commons.osgi.Order;
 import org.apache.sling.commons.osgi.RankedServices;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -34,21 +33,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.wcm.sling.commons.caservice.ContextAwareService;
-import io.wcm.sling.commons.caservice.PathPreprocessor;
 
-class ContextAwareServiceTracker implements ServiceTrackerCustomizer<ContextAwareService, ServiceInfo> {
+class ContextAwareServiceTracker<S extends ContextAwareService> implements ServiceTrackerCustomizer<S, ServiceInfo<S>> {
 
+  private final String serviceClassName;
   private final BundleContext bundleContext;
-  private final PathPreprocessor pathPreprocessor;
-  private final ServiceTracker<ContextAwareService, ServiceInfo> serviceTracker;
-  private volatile RankedServices<ServiceInfo> rankedServices;
+  private final ServiceTracker<S, ServiceInfo<S>> serviceTracker;
+  private volatile RankedServices<ServiceInfo<S>> rankedServices;
   private volatile long lastServiceChange;
 
   private static final Logger log = LoggerFactory.getLogger(ContextAwareServiceTracker.class);
 
-  ContextAwareServiceTracker(String serviceClassName, BundleContext bundleContext, PathPreprocessor pathPreprocessor) {
+  ContextAwareServiceTracker(@NotNull String serviceClassName, @NotNull BundleContext bundleContext) {
+    this.serviceClassName = serviceClassName;
     this.bundleContext = bundleContext;
-    this.pathPreprocessor = pathPreprocessor;
     this.rankedServices = new RankedServices<>(Order.DESCENDING);
     this.serviceTracker = new ServiceTracker<>(bundleContext, serviceClassName, this);
     this.serviceTracker.open();
@@ -60,11 +58,9 @@ class ContextAwareServiceTracker implements ServiceTrackerCustomizer<ContextAwar
   }
 
   @Override
-  public ServiceInfo addingService(ServiceReference<ContextAwareService> reference) {
-    ServiceInfo serviceInfo = new ServiceInfo(reference, bundleContext);
-    if (log.isDebugEnabled()) {
-      log.debug("Add service {}", serviceInfo.getService().getClass().getName());
-    }
+  public ServiceInfo addingService(ServiceReference<S> reference) {
+    ServiceInfo<S> serviceInfo = new ServiceInfo<>(reference, bundleContext);
+    logServiceDebugMessage("Add service {}", serviceInfo);
     if (rankedServices != null) {
       rankedServices.bind(serviceInfo, serviceInfo.getServiceProperties());
     }
@@ -73,15 +69,13 @@ class ContextAwareServiceTracker implements ServiceTrackerCustomizer<ContextAwar
   }
 
   @Override
-  public void modifiedService(ServiceReference<ContextAwareService> reference, ServiceInfo serviceInfo) {
+  public void modifiedService(ServiceReference<S> reference, ServiceInfo<S> serviceInfo) {
     // nothing to do
   }
 
   @Override
-  public void removedService(ServiceReference<ContextAwareService> reference, ServiceInfo serviceInfo) {
-    if (log.isDebugEnabled()) {
-      log.debug("Remove service {}", serviceInfo.getService().getClass().getName());
-    }
+  public void removedService(ServiceReference<S> reference, ServiceInfo<S> serviceInfo) {
+    logServiceDebugMessage("Remove service {}", serviceInfo);
     if (rankedServices != null) {
       rankedServices.unbind(serviceInfo, serviceInfo.getServiceProperties());
     }
@@ -89,33 +83,34 @@ class ContextAwareServiceTracker implements ServiceTrackerCustomizer<ContextAwar
     bundleContext.ungetService(reference);
   }
 
-  public Stream<ServiceInfo> resolve(@Nullable Resource resource, @Nullable Filter filter) {
+  public Stream<ServiceInfo<S>> resolve(@Nullable String resourcePath) {
     if (rankedServices == null) {
       return Stream.empty();
     }
     return rankedServices.getList().stream()
-        .filter(serviceInfo -> serviceInfo.matchesFilter(filter))
-        .filter(serviceInfo -> matchesResource(serviceInfo, resource));
+        .filter(serviceInfo -> serviceInfo.matches(resourcePath));
   }
 
-  private boolean matchesResource(ServiceInfo serviceInfo, Resource resource) {
-    String path = null;
-    if (resource != null) {
-      path = resource.getPath();
-      if (pathPreprocessor != null) {
-        // apply path preprocessor
-        path = pathPreprocessor.apply(path, resource.getResourceResolver());
-      }
-    }
-    return serviceInfo.matches(path);
+  public String getServiceClassName() {
+    return this.serviceClassName;
   }
 
   public long getLastServiceChangeTimestamp() {
     return this.lastServiceChange;
   }
 
-  public Iterable<ServiceInfo> getServiceInfos() {
+  public Iterable<ServiceInfo<S>> getServiceInfos() {
     return rankedServices;
+  }
+
+  private void logServiceDebugMessage(String message, ServiceInfo<S> serviceInfo) {
+    if (!log.isDebugEnabled()) {
+      return;
+    }
+    Object service = serviceInfo.getService();
+    if (service != null) {
+      log.debug(message, service.getClass().getName());
+    }
   }
 
 }

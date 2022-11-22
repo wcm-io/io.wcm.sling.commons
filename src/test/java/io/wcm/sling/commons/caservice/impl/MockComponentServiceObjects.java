@@ -2,7 +2,7 @@
  * #%L
  * wcm.io
  * %%
- * Copyright (C) 2017 wcm.io
+ * Copyright (C) 2022 wcm.io
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,32 @@
  */
 package io.wcm.sling.commons.caservice.impl;
 
-class DummySpiImpl implements DummySpi {
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentServiceObjects;
 
-  private final String info;
+class MockComponentServiceObjects<S> implements ComponentServiceObjects<S> {
 
-  DummySpiImpl(String info) {
-    this.info = info;
+  private final ServiceReference<S> serviceReference;
+  private final S service;
+
+  MockComponentServiceObjects(ServiceReference<S> serviceReference, S service) {
+    this.serviceReference = serviceReference;
+    this.service = service;
   }
 
   @Override
-  public String toString() {
-    return info;
+  public ServiceReference<S> getServiceReference() {
+    return serviceReference;
+  }
+
+  @Override
+  public S getService() {
+    return service;
+  }
+
+  @Override
+  public void ungetService(S svc) {
+    // ignore
   }
 
 }

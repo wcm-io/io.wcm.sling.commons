@@ -23,7 +23,6 @@ import static io.wcm.sling.commons.caservice.ContextAwareService.PROPERTY_ACCEPT
 import static io.wcm.sling.commons.caservice.ContextAwareService.PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN;
 import static io.wcm.sling.commons.caservice.ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN;
 
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -33,9 +32,9 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,42 +44,57 @@ import io.wcm.sling.commons.caservice.ContextAwareService;
 /**
  * Extracts metadata of a context-aware service implementation.
  */
-class ServiceInfo {
+class ServiceInfo<S extends ContextAwareService> {
 
-  private final ContextAwareService service;
+  private static final Pattern PATTERN_MATCH_ALL = Pattern.compile(".*");
+
+  private final @Nullable S service;
   private final Map<String, Object> servicePropertiesMap;
-  private final Dictionary<String, Object> servicePropertiesDictionary;
   private final Pattern contextPathRegex;
   private final Pattern contextPathBlacklistRegex;
   private final boolean acceptsContextPathEmpty;
   private final String key;
-  private boolean valid = true;
+  private final boolean valid;
 
   private static final Logger log = LoggerFactory.getLogger(ServiceInfo.class);
 
-  ServiceInfo(ServiceReference<?> serviceReference, BundleContext bundleContext) {
-    this.service = validateAndGetService(serviceReference, bundleContext);
-    this.servicePropertiesDictionary = serviceReference.getProperties();
-    this.servicePropertiesMap = propertiesToMap(serviceReference);
-    this.contextPathRegex = validateAndParsePattern(serviceReference, PROPERTY_CONTEXT_PATH_PATTERN);
-    this.contextPathBlacklistRegex = validateAndParsePattern(serviceReference, PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN);
-    this.acceptsContextPathEmpty = validateAndGetBoolan(lookupServicePropertyBundleHeader(serviceReference, PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY));
-    this.key = buildKey();
+  /**
+   * @param serviceReference Service reference
+   * @param bundleContext Bundle context
+   */
+  ServiceInfo(@NotNull ServiceReference<S> serviceReference, @NotNull BundleContext bundleContext) {
+    this(serviceReference, validateAndGetService(serviceReference, bundleContext));
   }
 
-  @SuppressWarnings("PMD.GuardLogStatement")
-  private ContextAwareService validateAndGetService(ServiceReference<?> serviceReference, BundleContext bundleContext) {
+  /**
+   * @param serviceReference Service reference
+   * @param service Service instance
+   */
+  ServiceInfo(@NotNull ServiceReference<S> serviceReference, @Nullable S service) {
+    this.service = service;
+    this.servicePropertiesMap = propertiesToMap(serviceReference);
+    this.contextPathRegex = validateAndParsePattern(serviceReference, service, PROPERTY_CONTEXT_PATH_PATTERN);
+    this.contextPathBlacklistRegex = validateAndParsePattern(serviceReference, service, PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN);
+    this.acceptsContextPathEmpty = validateAndGetBoolan(lookupServicePropertyBundleHeader(serviceReference, PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY));
+    this.key = buildKey();
+    this.valid = service != null && contextPathRegex != null && contextPathBlacklistRegex != null;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <S extends ContextAwareService> @Nullable S validateAndGetService(
+      @NotNull ServiceReference<S> serviceReference, @NotNull BundleContext bundleContext) {
     Object serviceObject = bundleContext.getService(serviceReference);
     if (serviceObject instanceof ContextAwareService) {
-      return (ContextAwareService)serviceObject;
+      return (S)serviceObject;
     }
-    log.warn("Service implementation {} does not implement the ContextAwareService interface"
-        + " - service will be ignored for context-aware service resolution.", (serviceObject != null ? serviceObject.getClass().getName() : ""));
-    valid = false;
+    if (log.isWarnEnabled()) {
+      log.warn("Service implementation {} does not implement the ContextAwareService interface"
+          + " - service will be ignored for context-aware service resolution.", (serviceObject != null ? serviceObject.getClass().getName() : ""));
+    }
     return null;
   }
 
-  private Map<String, Object> propertiesToMap(ServiceReference<?> reference) {
+  private static <S extends ContextAwareService> Map<String, Object> propertiesToMap(@NotNull ServiceReference<S> reference) {
     Map<String, Object> props = new HashMap<>();
     for (String propertyName : reference.getPropertyKeys()) {
       props.put(propertyName, reference.getProperty(propertyName));
@@ -88,7 +102,8 @@ class ServiceInfo {
     return props;
   }
 
-  private Object lookupServicePropertyBundleHeader(ServiceReference<?> serviceReference, String propertyName) {
+  private static <S extends ContextAwareService> Object lookupServicePropertyBundleHeader(
+      @NotNull ServiceReference<S> serviceReference, @NotNull String propertyName) {
     Object value = serviceReference.getProperty(propertyName);
     if (value == null) {
       value = serviceReference.getBundle().getHeaders().get(propertyName);
@@ -96,13 +111,13 @@ class ServiceInfo {
     return value;
   }
 
-  @SuppressWarnings("PMD.GuardLogStatement")
-  private Pattern validateAndParsePattern(ServiceReference<?> serviceReference, String patternPropertyName) {
+  private static <S extends ContextAwareService> Pattern validateAndParsePattern(
+      @NotNull ServiceReference<S> serviceReference, @Nullable S service, @NotNull String patternPropertyName) {
     Object value = lookupServicePropertyBundleHeader(serviceReference, patternPropertyName);
     if (value == null || value instanceof String) {
       String patternString = (String)value;
       if (StringUtils.isEmpty(patternString)) {
-        return null;
+        return PATTERN_MATCH_ALL;
       }
       else {
         try {
@@ -113,13 +128,14 @@ class ServiceInfo {
         }
       }
     }
-    log.warn("Invalid {} regex pattern '{}' - service {} from bundle {} will be ignored for context-aware service resolution.",
-        patternPropertyName, value, service.getClass().getName(), serviceReference.getBundle().getSymbolicName());
-    valid = false;
+    if (log.isWarnEnabled()) {
+      log.warn("Invalid {} regex pattern '{}' - service {} from bundle {} will be ignored for context-aware service resolution.",
+          patternPropertyName, value, service != null ? service.getClass().getName() : "", serviceReference.getBundle().getSymbolicName());
+    }
     return null;
   }
 
-  private boolean validateAndGetBoolan(Object value) {
+  private static boolean validateAndGetBoolan(Object value) {
     if (value instanceof Boolean) {
       return (Boolean)value;
     }
@@ -133,7 +149,7 @@ class ServiceInfo {
    * Service implementation.
    * @return Service object.
    */
-  public ContextAwareService getService() {
+  public @Nullable S getService() {
     return this.service;
   }
 
@@ -143,6 +159,13 @@ class ServiceInfo {
    */
   public Map<String, Object> getServiceProperties() {
     return this.servicePropertiesMap;
+  }
+
+  /**
+   * @return Valid service
+   */
+  public boolean isValid() {
+    return this.valid;
   }
 
   /**
@@ -157,25 +180,13 @@ class ServiceInfo {
     if (resourcePath == null) {
       return acceptsContextPathEmpty;
     }
-    if (contextPathRegex != null && !contextPathRegex.matcher(resourcePath).matches()) {
+    if (contextPathRegex != PATTERN_MATCH_ALL && !contextPathRegex.matcher(resourcePath).matches()) {
       return false;
     }
-    if (contextPathBlacklistRegex != null && contextPathBlacklistRegex.matcher(resourcePath).matches()) {
+    if (contextPathBlacklistRegex != PATTERN_MATCH_ALL && contextPathBlacklistRegex.matcher(resourcePath).matches()) {
       return false;
     }
     return true;
-  }
-
-  /**
-   * Checks if the services matched the given filter.
-   * @param filter OSGi filter. If null it matches always.
-   * @return true if matching
-   */
-  public boolean matchesFilter(@Nullable Filter filter) {
-    if (filter == null) {
-      return true;
-    }
-    return filter.match(servicePropertiesDictionary);
   }
 
   private String buildKey() {
