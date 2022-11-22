@@ -66,7 +66,7 @@ public class ContextAwareServiceInventoryPrinter implements InventoryPrinter {
       pw.println();
       pw.println(entry.getKey());
       pw.println(StringUtils.repeat('-', entry.getKey().length()));
-      for (ServiceInfo<?> serviceInfo : entry.getValue().getServiceInfos()) {
+      for (ServiceInfo<ContextAwareService> serviceInfo : entry.getValue().getServiceInfos()) {
         pw.print("- ");
         pw.println(serviceInfo.toString());
       }
