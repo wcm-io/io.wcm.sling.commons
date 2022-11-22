@@ -37,6 +37,9 @@ import io.wcm.sling.commons.caservice.ContextAwareServiceResolver;
 import io.wcm.testing.mock.aem.junit5.AemContext;
 import io.wcm.testing.mock.aem.junit5.AemContextExtension;
 
+/**
+ * Test inventory printer.
+ */
 @ExtendWith(AemContextExtension.class)
 class ContextAwareServiceInventoryPrinterTest {
 

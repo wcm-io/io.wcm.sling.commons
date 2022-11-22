@@ -40,6 +40,9 @@ import io.wcm.sling.commons.caservice.PathPreprocessor;
 import io.wcm.testing.mock.aem.junit5.AemContext;
 import io.wcm.testing.mock.aem.junit5.AemContextExtension;
 
+/**
+ * Test resolving context-aware services using service collection against the {@link TestServices}.
+ */
 @ExtendWith(AemContextExtension.class)
 class ContextAwareServiceCollectionResolverImplTest {
 
