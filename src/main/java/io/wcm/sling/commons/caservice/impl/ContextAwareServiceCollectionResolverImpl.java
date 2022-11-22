@@ -57,10 +57,9 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
 
   @Override
   @SuppressWarnings("null")
-  public @NotNull Collection<S> resolveAll(@Nullable Adaptable adaptable) {
+  public @NotNull Stream<S> resolveAll(@Nullable Adaptable adaptable) {
     return getMatching(adaptable)
-        .map(ServiceWrapper::getService)
-        .collect(Collectors.toList());
+        .map(ServiceWrapper::getService);
   }
 
   @Override
@@ -73,10 +72,9 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
 
   @Override
   @SuppressWarnings("null")
-  public @NotNull Collection<D> resolveAllDecorated(@Nullable Adaptable adaptable) {
+  public @NotNull Stream<D> resolveAllDecorated(@Nullable Adaptable adaptable) {
     return getMatching(adaptable)
-        .map(ServiceWrapper::getDecoration)
-        .collect(Collectors.toList());
+        .map(ServiceWrapper::getDecoration);
   }
 
   private Stream<ServiceWrapper<S, D>> getMatching(@Nullable Adaptable adaptable) {

@@ -76,7 +76,7 @@ class ContextAwareServiceCollectionResolverImplTest {
     assertSame(defaultImpl, underTest.resolve(context.create().resource("/etc/test1")));
 
     assertEquals(ImmutableList.of(contentDamImpl, contentImpl, defaultImpl),
-        underTest.resolveAll(context.create().resource("/content/dam/test2")));
+        underTest.resolveAll(context.create().resource("/content/dam/test2")).collect(Collectors.toList()));
   }
 
   @Test
@@ -94,7 +94,7 @@ class ContextAwareServiceCollectionResolverImplTest {
 
     assertEquals(ImmutableList.of(contentDamImpl, contentImpl, defaultImpl),
         underTest.resolveAllDecorated(context.create().resource("/content/dam/test2"))
-            .stream().map(DummySpiDecorator::getService).collect(Collectors.toList()));
+            .map(DummySpiDecorator::getService).collect(Collectors.toList()));
   }
 
   @Test
@@ -109,9 +109,9 @@ class ContextAwareServiceCollectionResolverImplTest {
     assertNull(underTest.resolve(context.create().resource("/etc/test1")));
 
     assertEquals(ImmutableList.of(contentDamImpl, contentImpl),
-        underTest.resolveAll(context.create().resource("/content/dam/test2")));
+        underTest.resolveAll(context.create().resource("/content/dam/test2")).collect(Collectors.toList()));
     assertEquals(ImmutableList.of(contentSampleImpl, contentImpl),
-        underTest.resolveAll(context.create().resource("/content/sample/test2")));
+        underTest.resolveAll(context.create().resource("/content/sample/test2")).collect(Collectors.toList()));
   }
 
   @Test
@@ -124,7 +124,7 @@ class ContextAwareServiceCollectionResolverImplTest {
     assertSame(contentSampleImpl, underTest.resolve(context.request()));
 
     assertEquals(ImmutableList.of(contentSampleImpl, contentImpl, defaultImpl),
-        underTest.resolveAll(context.request()));
+        underTest.resolveAll(context.request()).collect(Collectors.toList()));
   }
 
   /**
@@ -142,7 +142,7 @@ class ContextAwareServiceCollectionResolverImplTest {
     assertSame(contentSampleImpl, underTest.resolve(context.request()));
 
     assertEquals(ImmutableList.of(contentSampleImpl, contentImpl, defaultImpl),
-        underTest.resolveAll(context.request()));
+        underTest.resolveAll(context.request()).collect(Collectors.toList()));
   }
 
   @Test
@@ -154,7 +154,7 @@ class ContextAwareServiceCollectionResolverImplTest {
 
     assertSame(defaultImpl, underTest.resolve(null));
 
-    assertEquals(ImmutableList.of(defaultImpl), underTest.resolveAll(null));
+    assertEquals(ImmutableList.of(defaultImpl), underTest.resolveAll(null).collect(Collectors.toList()));
   }
 
   @Test
@@ -170,7 +170,7 @@ class ContextAwareServiceCollectionResolverImplTest {
     assertNull(underTest.resolve(context.create().resource("/etc/test1")));
 
     assertEquals(ImmutableList.of(contentDamImplWithBundleHeader, contentDamImpl, contentImpl),
-        underTest.resolveAll(context.create().resource("/content/dam/test2")));
+        underTest.resolveAll(context.create().resource("/content/dam/test2")).collect(Collectors.toList()));
   }
 
   @Test
@@ -187,7 +187,7 @@ class ContextAwareServiceCollectionResolverImplTest {
     assertNull(underTest.resolve(context.create().resource("/pathprefix/etc/test1")));
 
     assertEquals(ImmutableList.of(contentDamImpl, contentImpl),
-        underTest.resolveAll(context.create().resource("/pathprefix/content/dam/test2")));
+        underTest.resolveAll(context.create().resource("/pathprefix/content/dam/test2")).collect(Collectors.toList()));
   }
 
 }

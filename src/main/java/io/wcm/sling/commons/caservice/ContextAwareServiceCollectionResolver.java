@@ -19,7 +19,7 @@
  */
 package io.wcm.sling.commons.caservice;
 
-import java.util.Collection;
+import java.util.stream.Stream;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.adapter.Adaptable;
@@ -60,10 +60,10 @@ public interface ContextAwareServiceCollectionResolver<S extends ContextAwareSer
    * @param adaptable Adaptable which is either a {@link Resource} or {@link SlingHttpServletRequest}.
    *          A resource instance is used directly for matching, in case of request the associated resource is used.
    *          May be null if no context is available.
-   * @return Collection of all matching services
+   * @return All matching services
    */
   @NotNull
-  Collection<S> resolveAll(@Nullable Adaptable adaptable);
+  Stream<S> resolveAll(@Nullable Adaptable adaptable);
 
   /**
    * Resolves the best-matching service implementation for the given resource context.
@@ -73,7 +73,7 @@ public interface ContextAwareServiceCollectionResolver<S extends ContextAwareSer
    * @param adaptable Adaptable which is either a {@link Resource} or {@link SlingHttpServletRequest}.
    *          A resource instance is used directly for matching, in case of request the associated resource is used.
    *          May be null if no context is available.
-   * @return Service implementation or null if no match found.
+   * @return Decorated service implementation or null if no match found.
    */
   @Nullable
   D resolveDecorated(@Nullable Adaptable adaptable);
@@ -86,9 +86,9 @@ public interface ContextAwareServiceCollectionResolver<S extends ContextAwareSer
    * @param adaptable Adaptable which is either a {@link Resource} or {@link SlingHttpServletRequest}.
    *          A resource instance is used directly for matching, in case of request the associated resource is used.
    *          May be null if no context is available.
-   * @return Collection of all matching services
+   * @return All matching decorated services
    */
   @NotNull
-  Collection<D> resolveAllDecorated(@Nullable Adaptable adaptable);
+  Stream<D> resolveAllDecorated(@Nullable Adaptable adaptable);
 
 }
