@@ -29,9 +29,6 @@ import org.apache.sling.api.adapter.Adaptable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Filter;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceObjects;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -100,42 +97,20 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
   }
 
   @Override
-  public <T extends ContextAwareService> T resolve(@NotNull Class<T> serviceClass, @Nullable Adaptable adaptable) {
-    return resolve(serviceClass, adaptable, (Filter)null);
-  }
-
-  @Override
-  public <T extends ContextAwareService> T resolve(@NotNull Class<T> serviceClass, @Nullable Adaptable adaptable,
-      @Nullable String filter) throws InvalidSyntaxException {
-    return resolve(serviceClass, adaptable, toFilter(filter));
-  }
-
   @SuppressWarnings("null")
-  private <T extends ContextAwareService> T resolve(@NotNull Class<T> serviceClass, @Nullable Adaptable adaptable,
-      @Nullable Filter filter) {
+  public <T extends ContextAwareService> T resolve(@NotNull Class<T> serviceClass, @Nullable Adaptable adaptable) {
     ContextAwareServiceTracker<T> serviceTracker = getServiceTracker(serviceClass);
-    return resolverHelper.getValidServices(getMatchingServiceInfos(serviceTracker, adaptable, filter))
+    return resolverHelper.getValidServices(getMatchingServiceInfos(serviceTracker, adaptable))
         .findFirst().orElse(null);
   }
 
   @Override
   public <T extends ContextAwareService> @NotNull ResolveAllResult<T> resolveAll(@NotNull Class<T> serviceClass,
       @Nullable Adaptable adaptable) {
-    return resolveAll(serviceClass, adaptable, (Filter)null);
-  }
-
-  @Override
-  public <T extends ContextAwareService> @NotNull ResolveAllResult<T> resolveAll(@NotNull Class<T> serviceClass,
-      @Nullable Adaptable adaptable, @Nullable String filter) throws InvalidSyntaxException {
-    return resolveAll(serviceClass, adaptable, toFilter(filter));
-  }
-
-  private <T extends ContextAwareService> @NotNull ResolveAllResult<T> resolveAll(@NotNull Class<T> serviceClass,
-      @Nullable Adaptable adaptable, @Nullable Filter filter) {
     ContextAwareServiceTracker<T> serviceTracker = getServiceTracker(serviceClass);
-    Stream<T> services = resolverHelper.getValidServices(getMatchingServiceInfos(serviceTracker, adaptable, filter));
+    Stream<T> services = resolverHelper.getValidServices(getMatchingServiceInfos(serviceTracker, adaptable));
     Supplier<String> combinedKey = resolverHelper.buildCombinedKey(serviceTracker.getLastServiceChangeTimestamp(),
-        getMatchingServiceInfos(serviceTracker, adaptable, filter));
+        getMatchingServiceInfos(serviceTracker, adaptable));
     return new ResolveAllResultImpl<>(services, combinedKey);
   }
 
@@ -146,12 +121,12 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
   }
 
   private <T extends ContextAwareService> Stream<ServiceInfo<T>> getMatchingServiceInfos(
-      @NotNull ContextAwareServiceTracker<T> serviceTracker, @Nullable Adaptable adaptable, @Nullable Filter filter) {
+      @NotNull ContextAwareServiceTracker<T> serviceTracker, @Nullable Adaptable adaptable) {
     String resourcePath = resolverHelper.getResourcePath(adaptable);
     if (log.isTraceEnabled()) {
       log.trace("Resolve {} for resource {}", serviceTracker.getServiceClassName(), resourcePath);
     }
-    return serviceTracker.resolve(resourcePath, filter);
+    return serviceTracker.resolve(resourcePath);
   }
 
   @SuppressWarnings({
@@ -169,13 +144,6 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
 
   ConcurrentMap<String, ContextAwareServiceTracker<ContextAwareService>> getContextAwareServiceTrackerMap() {
     return serviceTrackerCache.asMap();
-  }
-
-  private static @Nullable Filter toFilter(@Nullable String filterString) throws InvalidSyntaxException {
-    if (filterString == null) {
-      return null;
-    }
-    return FrameworkUtil.createFilter(filterString);
   }
 
 }

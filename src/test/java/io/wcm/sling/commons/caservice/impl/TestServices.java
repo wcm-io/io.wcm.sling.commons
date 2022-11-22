@@ -43,8 +43,6 @@ import io.wcm.testing.mock.aem.junit5.AemContext;
  */
 class TestServices {
 
-  private static final String CUSTOM_PROPERTY = "myprop1";
-
   private final AemContext context;
 
   private final DummySpi contentService;
@@ -63,16 +61,13 @@ class TestServices {
 
     this.contentService = registerDummySpi(new DummySpiImpl("/content/*"),
         PROPERTY_CONTEXT_PATH_PATTERN, "^/content(/.*)?$",
-        CUSTOM_PROPERTY, "s1",
         SERVICE_RANKING, 100);
     this.contentDamService = registerDummySpi(new DummySpiImpl("/content/dam/*"),
         PROPERTY_CONTEXT_PATH_PATTERN, "^/content/dam(/.*)?$",
-        CUSTOM_PROPERTY, "s2",
         SERVICE_RANKING, 200);
     this.contentSampleService = registerDummySpi(new DummySpiImpl("/content/sample/*[!=exclude]"),
         PROPERTY_CONTEXT_PATH_PATTERN, "^/content/sample(/.*)?$",
         PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN, "^/content/sample/exclude(/.*)?$",
-        CUSTOM_PROPERTY, "s3",
         SERVICE_RANKING, 300);
 
     // add some more services with high ranking but invalid properties - they should never be returned

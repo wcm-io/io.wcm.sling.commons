@@ -23,7 +23,6 @@ import static io.wcm.sling.commons.caservice.ContextAwareService.PROPERTY_ACCEPT
 import static io.wcm.sling.commons.caservice.ContextAwareService.PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN;
 import static io.wcm.sling.commons.caservice.ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN;
 
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -36,7 +35,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +50,6 @@ class ServiceInfo<T extends ContextAwareService> {
 
   private final @Nullable T service;
   private final Map<String, Object> servicePropertiesMap;
-  private final Dictionary<String, Object> servicePropertiesDictionary;
   private final Pattern contextPathRegex;
   private final Pattern contextPathBlacklistRegex;
   private final boolean acceptsContextPathEmpty;
@@ -75,7 +72,6 @@ class ServiceInfo<T extends ContextAwareService> {
    */
   ServiceInfo(@NotNull ServiceReference<T> serviceReference, @Nullable T service) {
     this.service = service;
-    this.servicePropertiesDictionary = serviceReference.getProperties();
     this.servicePropertiesMap = propertiesToMap(serviceReference);
     this.contextPathRegex = validateAndParsePattern(serviceReference, service, PROPERTY_CONTEXT_PATH_PATTERN);
     this.contextPathBlacklistRegex = validateAndParsePattern(serviceReference, service, PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN);
@@ -177,7 +173,7 @@ class ServiceInfo<T extends ContextAwareService> {
    * @param resourcePath Resource path
    * @return true if the implementation matches and the configuration is not invalid.
    */
-  public boolean matchesPath(String resourcePath) {
+  public boolean matches(String resourcePath) {
     if (!valid) {
       return false;
     }
@@ -191,18 +187,6 @@ class ServiceInfo<T extends ContextAwareService> {
       return false;
     }
     return true;
-  }
-
-  /**
-   * Checks if the services matched the given filter.
-   * @param filter OSGi filter. If null it matches always.
-   * @return true if matching
-   */
-  public boolean matchesFilter(@Nullable Filter filter) {
-    if (filter == null) {
-      return true;
-    }
-    return filter.match(servicePropertiesDictionary);
   }
 
   private String buildKey() {

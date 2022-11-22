@@ -26,7 +26,6 @@ import org.apache.sling.commons.osgi.RankedServices;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -84,13 +83,12 @@ class ContextAwareServiceTracker<T extends ContextAwareService> implements Servi
     bundleContext.ungetService(reference);
   }
 
-  public Stream<ServiceInfo<T>> resolve(@Nullable String resourcePath, @Nullable Filter filter) {
+  public Stream<ServiceInfo<T>> resolve(@Nullable String resourcePath) {
     if (rankedServices == null) {
       return Stream.empty();
     }
     return rankedServices.getList().stream()
-        .filter(serviceInfo -> serviceInfo.matchesFilter(filter))
-        .filter(serviceInfo -> serviceInfo.matchesPath(resourcePath));
+        .filter(serviceInfo -> serviceInfo.matches(resourcePath));
   }
 
   public String getServiceClassName() {

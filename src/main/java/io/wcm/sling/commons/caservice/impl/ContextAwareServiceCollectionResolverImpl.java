@@ -68,7 +68,7 @@ class ContextAwareServiceCollectionResolverImpl<T extends ContextAwareService>
   private Stream<ServiceInfo<T>> getMatchingServiceInfos(@Nullable Adaptable adaptable) {
     String resourcePath = resolverHelper.getResourcePath(adaptable);
     return services.stream()
-        .filter(service -> service.matchesPath(resourcePath));
+        .filter(service -> service.matches(resourcePath));
   }
 
 }

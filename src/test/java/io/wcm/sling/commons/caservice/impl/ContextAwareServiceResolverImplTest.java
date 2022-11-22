@@ -30,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.osgi.framework.InvalidSyntaxException;
 
 import com.google.common.collect.ImmutableList;
 
@@ -45,8 +44,6 @@ import io.wcm.testing.mock.aem.junit5.AemContextExtension;
  */
 @ExtendWith(AemContextExtension.class)
 class ContextAwareServiceResolverImplTest {
-
-  private static final String CUSTOM_PROPERTY = "myprop1";
 
   private final AemContext context = new AemContext();
 
@@ -168,21 +165,6 @@ class ContextAwareServiceResolverImplTest {
 
     assertEquals(ImmutableList.of(contentDamImpl, contentImpl),
         underTest.resolveAll(DummySpi.class, context.create().resource("/pathprefix/content/dam/test2")).getServices().collect(Collectors.toList()));
-  }
-
-  @Test
-  void testWithFilter() throws InvalidSyntaxException {
-    String filter = "(!(" + CUSTOM_PROPERTY + "=s3))";
-    assertSame(contentImpl, underTest.resolve(DummySpi.class, context.create().resource("/content/test1"), filter));
-    assertSame(contentImpl, underTest.resolve(DummySpi.class, context.create().resource("/content/sample/test1"), filter));
-    assertSame(contentImpl, underTest.resolve(DummySpi.class, context.create().resource("/content/sample/exclude/test1"), filter));
-    assertSame(contentDamImpl, underTest.resolve(DummySpi.class, context.create().resource("/content/dam/test1"), filter));
-    assertNull(underTest.resolve(DummySpi.class, context.create().resource("/etc/test1"), filter));
-
-    assertEquals(ImmutableList.of(contentDamImpl, contentImpl),
-        underTest.resolveAll(DummySpi.class, context.create().resource("/content/dam/test2"), filter).getServices().collect(Collectors.toList()));
-    assertEquals(ImmutableList.of(contentImpl),
-        underTest.resolveAll(DummySpi.class, context.create().resource("/content/sample/test2"), filter).getServices().collect(Collectors.toList()));
   }
 
 }
