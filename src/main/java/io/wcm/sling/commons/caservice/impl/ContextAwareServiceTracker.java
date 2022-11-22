@@ -34,12 +34,12 @@ import org.slf4j.LoggerFactory;
 
 import io.wcm.sling.commons.caservice.ContextAwareService;
 
-class ContextAwareServiceTracker<T extends ContextAwareService> implements ServiceTrackerCustomizer<T, ServiceInfo<T>> {
+class ContextAwareServiceTracker<S extends ContextAwareService> implements ServiceTrackerCustomizer<S, ServiceInfo<S>> {
 
   private final String serviceClassName;
   private final BundleContext bundleContext;
-  private final ServiceTracker<T, ServiceInfo<T>> serviceTracker;
-  private volatile RankedServices<ServiceInfo<T>> rankedServices;
+  private final ServiceTracker<S, ServiceInfo<S>> serviceTracker;
+  private volatile RankedServices<ServiceInfo<S>> rankedServices;
   private volatile long lastServiceChange;
 
   private static final Logger log = LoggerFactory.getLogger(ContextAwareServiceTracker.class);
@@ -58,8 +58,8 @@ class ContextAwareServiceTracker<T extends ContextAwareService> implements Servi
   }
 
   @Override
-  public ServiceInfo addingService(ServiceReference<T> reference) {
-    ServiceInfo<T> serviceInfo = new ServiceInfo<>(reference, bundleContext);
+  public ServiceInfo addingService(ServiceReference<S> reference) {
+    ServiceInfo<S> serviceInfo = new ServiceInfo<>(reference, bundleContext);
     logServiceDebugMessage("Add service {}", serviceInfo);
     if (rankedServices != null) {
       rankedServices.bind(serviceInfo, serviceInfo.getServiceProperties());
@@ -69,12 +69,12 @@ class ContextAwareServiceTracker<T extends ContextAwareService> implements Servi
   }
 
   @Override
-  public void modifiedService(ServiceReference<T> reference, ServiceInfo<T> serviceInfo) {
+  public void modifiedService(ServiceReference<S> reference, ServiceInfo<S> serviceInfo) {
     // nothing to do
   }
 
   @Override
-  public void removedService(ServiceReference<T> reference, ServiceInfo<T> serviceInfo) {
+  public void removedService(ServiceReference<S> reference, ServiceInfo<S> serviceInfo) {
     logServiceDebugMessage("Remove service {}", serviceInfo);
     if (rankedServices != null) {
       rankedServices.unbind(serviceInfo, serviceInfo.getServiceProperties());
@@ -83,7 +83,7 @@ class ContextAwareServiceTracker<T extends ContextAwareService> implements Servi
     bundleContext.ungetService(reference);
   }
 
-  public Stream<ServiceInfo<T>> resolve(@Nullable String resourcePath) {
+  public Stream<ServiceInfo<S>> resolve(@Nullable String resourcePath) {
     if (rankedServices == null) {
       return Stream.empty();
     }
@@ -99,11 +99,11 @@ class ContextAwareServiceTracker<T extends ContextAwareService> implements Servi
     return this.lastServiceChange;
   }
 
-  public Iterable<ServiceInfo<T>> getServiceInfos() {
+  public Iterable<ServiceInfo<S>> getServiceInfos() {
     return rankedServices;
   }
 
-  private void logServiceDebugMessage(String message, ServiceInfo<T> serviceInfo) {
+  private void logServiceDebugMessage(String message, ServiceInfo<S> serviceInfo) {
     if (!log.isDebugEnabled()) {
       return;
     }

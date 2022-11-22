@@ -22,6 +22,7 @@ package io.wcm.sling.commons.caservice.impl;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -115,9 +116,15 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
   }
 
   @Override
-  public <T extends ContextAwareService> @NotNull ContextAwareServiceCollectionResolver<T> getCollectionResolver(
-      @NotNull Collection<ServiceObjects<T>> serviceObjectsCollection) {
-    return new ContextAwareServiceCollectionResolverImpl<>(serviceObjectsCollection, resolverHelper);
+  public <S extends ContextAwareService> @NotNull ContextAwareServiceCollectionResolver<S, Void> getCollectionResolver(
+      @NotNull Collection<ServiceObjects<S>> serviceObjectsCollection) {
+    return getCollectionResolver(serviceObjectsCollection, item -> null);
+  }
+
+  @Override
+  public <S extends ContextAwareService, D> @NotNull ContextAwareServiceCollectionResolver<S, D> getCollectionResolver(
+      @NotNull Collection<ServiceObjects<S>> serviceObjectsCollection, Function<ServiceObjects<S>, D> decorator) {
+    return new ContextAwareServiceCollectionResolverImpl<>(serviceObjectsCollection, decorator, resolverHelper);
   }
 
   private <T extends ContextAwareService> Stream<ServiceInfo<T>> getMatchingServiceInfos(

@@ -27,19 +27,19 @@ import org.jetbrains.annotations.NotNull;
 import io.wcm.sling.commons.caservice.ContextAwareService;
 import io.wcm.sling.commons.caservice.ContextAwareServiceResolver.ResolveAllResult;
 
-class ResolveAllResultImpl<T extends ContextAwareService> implements ResolveAllResult<T> {
+class ResolveAllResultImpl<S extends ContextAwareService> implements ResolveAllResult<S> {
 
-  private final Stream<T> services;
+  private final Stream<S> services;
   private final Supplier<String> combinedKeySupplier;
   private String combinedKey;
 
-  ResolveAllResultImpl(Stream<T> services, Supplier<String> combinedKeySupplier) {
+  ResolveAllResultImpl(Stream<S> services, Supplier<String> combinedKeySupplier) {
     this.services = services;
     this.combinedKeySupplier = combinedKeySupplier;
   }
 
   @Override
-  public @NotNull Stream<T> getServices() {
+  public @NotNull Stream<S> getServices() {
     return services;
   }
 

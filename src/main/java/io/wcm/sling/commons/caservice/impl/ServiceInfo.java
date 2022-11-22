@@ -44,11 +44,11 @@ import io.wcm.sling.commons.caservice.ContextAwareService;
 /**
  * Extracts metadata of a context-aware service implementation.
  */
-class ServiceInfo<T extends ContextAwareService> {
+class ServiceInfo<S extends ContextAwareService> {
 
   private static final Pattern PATTERN_MATCH_ALL = Pattern.compile(".*");
 
-  private final @Nullable T service;
+  private final @Nullable S service;
   private final Map<String, Object> servicePropertiesMap;
   private final Pattern contextPathRegex;
   private final Pattern contextPathBlacklistRegex;
@@ -62,7 +62,7 @@ class ServiceInfo<T extends ContextAwareService> {
    * @param serviceReference Service reference
    * @param bundleContext Bundle context
    */
-  ServiceInfo(@NotNull ServiceReference<T> serviceReference, @NotNull BundleContext bundleContext) {
+  ServiceInfo(@NotNull ServiceReference<S> serviceReference, @NotNull BundleContext bundleContext) {
     this(serviceReference, validateAndGetService(serviceReference, bundleContext));
   }
 
@@ -70,7 +70,7 @@ class ServiceInfo<T extends ContextAwareService> {
    * @param serviceReference Service reference
    * @param service Service instance
    */
-  ServiceInfo(@NotNull ServiceReference<T> serviceReference, @Nullable T service) {
+  ServiceInfo(@NotNull ServiceReference<S> serviceReference, @Nullable S service) {
     this.service = service;
     this.servicePropertiesMap = propertiesToMap(serviceReference);
     this.contextPathRegex = validateAndParsePattern(serviceReference, service, PROPERTY_CONTEXT_PATH_PATTERN);
@@ -81,11 +81,11 @@ class ServiceInfo<T extends ContextAwareService> {
   }
 
   @SuppressWarnings("unchecked")
-  private static <T extends ContextAwareService> @Nullable T validateAndGetService(
-      @NotNull ServiceReference<T> serviceReference, @NotNull BundleContext bundleContext) {
+  private static <S extends ContextAwareService> @Nullable S validateAndGetService(
+      @NotNull ServiceReference<S> serviceReference, @NotNull BundleContext bundleContext) {
     Object serviceObject = bundleContext.getService(serviceReference);
     if (serviceObject instanceof ContextAwareService) {
-      return (T)serviceObject;
+      return (S)serviceObject;
     }
     if (log.isWarnEnabled()) {
       log.warn("Service implementation {} does not implement the ContextAwareService interface"
@@ -94,7 +94,7 @@ class ServiceInfo<T extends ContextAwareService> {
     return null;
   }
 
-  private static <T extends ContextAwareService> Map<String, Object> propertiesToMap(@NotNull ServiceReference<T> reference) {
+  private static <S extends ContextAwareService> Map<String, Object> propertiesToMap(@NotNull ServiceReference<S> reference) {
     Map<String, Object> props = new HashMap<>();
     for (String propertyName : reference.getPropertyKeys()) {
       props.put(propertyName, reference.getProperty(propertyName));
@@ -102,8 +102,8 @@ class ServiceInfo<T extends ContextAwareService> {
     return props;
   }
 
-  private static <T extends ContextAwareService> Object lookupServicePropertyBundleHeader(
-      @NotNull ServiceReference<T> serviceReference, @NotNull String propertyName) {
+  private static <S extends ContextAwareService> Object lookupServicePropertyBundleHeader(
+      @NotNull ServiceReference<S> serviceReference, @NotNull String propertyName) {
     Object value = serviceReference.getProperty(propertyName);
     if (value == null) {
       value = serviceReference.getBundle().getHeaders().get(propertyName);
@@ -111,8 +111,8 @@ class ServiceInfo<T extends ContextAwareService> {
     return value;
   }
 
-  private static <T extends ContextAwareService> Pattern validateAndParsePattern(
-      @NotNull ServiceReference<T> serviceReference, @Nullable T service, @NotNull String patternPropertyName) {
+  private static <S extends ContextAwareService> Pattern validateAndParsePattern(
+      @NotNull ServiceReference<S> serviceReference, @Nullable S service, @NotNull String patternPropertyName) {
     Object value = lookupServicePropertyBundleHeader(serviceReference, patternPropertyName);
     if (value == null || value instanceof String) {
       String patternString = (String)value;
@@ -149,7 +149,7 @@ class ServiceInfo<T extends ContextAwareService> {
    * Service implementation.
    * @return Service object.
    */
-  public @Nullable T getService() {
+  public @Nullable S getService() {
     return this.service;
   }
 

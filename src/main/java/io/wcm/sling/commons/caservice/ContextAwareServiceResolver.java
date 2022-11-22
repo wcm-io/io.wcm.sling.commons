@@ -20,6 +20,7 @@
 package io.wcm.sling.commons.caservice;
 
 import java.util.Collection;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -45,10 +46,10 @@ public interface ContextAwareServiceResolver {
    * @param adaptable Adaptable which is either a {@link Resource} or {@link SlingHttpServletRequest}.
    *          A resource instance is used directly for matching, in case of request the associated resource is used.
    *          May be null if no context is available.
-   * @param <T> Service interface or class
+   * @param <S> Service interface or class
    * @return Service implementation or null if no match found.
    */
-  <T extends ContextAwareService> @Nullable T resolve(@NotNull Class<T> serviceClass, @Nullable Adaptable adaptable);
+  <S extends ContextAwareService> @Nullable S resolve(@NotNull Class<S> serviceClass, @Nullable Adaptable adaptable);
 
   /**
    * Resolves all matching service implementations for the given resource context.
@@ -59,36 +60,51 @@ public interface ContextAwareServiceResolver {
    * @param adaptable Adaptable which is either a {@link Resource} or {@link SlingHttpServletRequest}.
    *          A resource instance is used directly for matching, in case of request the associated resource is used.
    *          May be null if no context is available.
-   * @param <T> Service interface or class
+   * @param <S> Service interface or class
    * @return Collection of all matching services
    */
-  <T extends ContextAwareService> @NotNull ResolveAllResult<T> resolveAll(@NotNull Class<T> serviceClass, @Nullable Adaptable adaptable);
+  <S extends ContextAwareService> @NotNull ResolveAllResult<S> resolveAll(@NotNull Class<S> serviceClass, @Nullable Adaptable adaptable);
 
   /**
    * Gets a {@link ContextAwareServiceCollectionResolver} which operates on a given collection of service objects
    * of the required service. This collection is usually managed by OSGi Declarative Services and expected
    * to contain all services with the service interface order by service ranking (high to low).
    * The collection resolver helps to get service(s) matching the resource context out of this list.
-   * @param <T> Service interface or class
+   * @param <S> Service interface or class
    * @param serviceObjectsCollection Collection of service objects
    * @return Collection resolver
    */
-  <T extends ContextAwareService> @NotNull ContextAwareServiceCollectionResolver<T> getCollectionResolver(
-      @NotNull Collection<ServiceObjects<T>> serviceObjectsCollection);
+  <S extends ContextAwareService> @NotNull ContextAwareServiceCollectionResolver<S, Void> getCollectionResolver(
+      @NotNull Collection<ServiceObjects<S>> serviceObjectsCollection);
+
+  /**
+   * Gets a {@link ContextAwareServiceCollectionResolver} which operates on a given collection of service objects
+   * of the required service. This collection is usually managed by OSGi Declarative Services and expected
+   * to contain all services with the service interface order by service ranking (high to low).
+   * The collection resolver helps to get service(s) matching the resource context out of this list.
+   * @param <S> Service interface or class
+   * @param <D> Decorator class that is calculated once for each item of the service objects collection.
+   * @param serviceObjectsCollection Collection of service objects
+   * @param decorator Creates decoration for each collection item once.
+   * @return Collection resolver
+   */
+  <S extends ContextAwareService, D> @NotNull ContextAwareServiceCollectionResolver<S, D> getCollectionResolver(
+      @NotNull Collection<ServiceObjects<S>> serviceObjectsCollection,
+      Function<ServiceObjects<S>, D> decorator);
 
   /**
    * Result of the {@link ContextAwareServiceResolver#resolveAll(Class, Adaptable)} method.
    * All methods are implemented in a lazy fashion.
-   * @param <T> Service interface or class
+   * @param <S> Service interface or class
    */
-  interface ResolveAllResult<T extends ContextAwareService> {
+  interface ResolveAllResult<S extends ContextAwareService> {
 
     /**
      * Gets all matching services
      * @return Context-Aware services
      */
     @NotNull
-    Stream<T> getServices();
+    Stream<S> getServices();
 
     /**
      * Gets a combined key that represents the path filter sets of all affected context-aware services

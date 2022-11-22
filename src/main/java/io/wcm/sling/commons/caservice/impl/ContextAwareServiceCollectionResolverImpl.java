@@ -20,7 +20,7 @@
 package io.wcm.sling.commons.caservice.impl;
 
 import java.util.Collection;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,44 +31,88 @@ import org.osgi.framework.ServiceObjects;
 
 import io.wcm.sling.commons.caservice.ContextAwareService;
 import io.wcm.sling.commons.caservice.ContextAwareServiceCollectionResolver;
-import io.wcm.sling.commons.caservice.ContextAwareServiceResolver.ResolveAllResult;
 
-class ContextAwareServiceCollectionResolverImpl<T extends ContextAwareService>
-    implements ContextAwareServiceCollectionResolver<T> {
+class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D>
+    implements ContextAwareServiceCollectionResolver<S, D> {
 
-  private final Collection<ServiceInfo<T>> services;
+  private final Collection<ServiceWrapper<S, D>> services;
   private final ResolverHelper resolverHelper;
-  private final long timestamp;
 
-  @SuppressWarnings("null")
-  ContextAwareServiceCollectionResolverImpl(@NotNull Collection<ServiceObjects<T>> serviceObjectsCollection,
-      @NotNull ResolverHelper resolverHelper) {
+  ContextAwareServiceCollectionResolverImpl(@NotNull Collection<ServiceObjects<S>> serviceObjectsCollection,
+      Function<ServiceObjects<S>, D> decorator, @NotNull ResolverHelper resolverHelper) {
     this.services = serviceObjectsCollection.stream()
-        .map(serviceObjects -> new ServiceInfo<T>(serviceObjects.getServiceReference(), serviceObjects.getService()))
-        .filter(ServiceInfo::isValid)
+        .map(serviceObjects -> new ServiceWrapper<>(serviceObjects, decorator))
+        .filter(ServiceWrapper::isValid)
         .collect(Collectors.toList());
     this.resolverHelper = resolverHelper;
-    this.timestamp = System.currentTimeMillis();
   }
 
   @Override
   @SuppressWarnings("null")
-  public @Nullable T resolve(@Nullable Adaptable adaptable) {
-    return resolverHelper.getValidServices(getMatchingServiceInfos(adaptable))
+  public @Nullable S resolve(@Nullable Adaptable adaptable) {
+    return getMatching(adaptable)
+        .map(ServiceWrapper::getService)
         .findFirst().orElse(null);
   }
 
   @Override
-  public @NotNull ResolveAllResult<T> resolveAll(@Nullable Adaptable adaptable) {
-    Stream<T> matchingServices = resolverHelper.getValidServices(getMatchingServiceInfos(adaptable));
-    Supplier<String> combinedKey = resolverHelper.buildCombinedKey(timestamp, getMatchingServiceInfos(adaptable));
-    return new ResolveAllResultImpl<>(matchingServices, combinedKey);
+  @SuppressWarnings("null")
+  public @NotNull Collection<S> resolveAll(@Nullable Adaptable adaptable) {
+    return getMatching(adaptable)
+        .map(ServiceWrapper::getService)
+        .collect(Collectors.toList());
   }
 
-  private Stream<ServiceInfo<T>> getMatchingServiceInfos(@Nullable Adaptable adaptable) {
+  @Override
+  @SuppressWarnings("null")
+  public @Nullable D resolveDecorated(@Nullable Adaptable adaptable) {
+    return getMatching(adaptable)
+        .map(ServiceWrapper::getDecoration)
+        .findFirst().orElse(null);
+  }
+
+  @Override
+  @SuppressWarnings("null")
+  public @NotNull Collection<D> resolveAllDecorated(@Nullable Adaptable adaptable) {
+    return getMatching(adaptable)
+        .map(ServiceWrapper::getDecoration)
+        .collect(Collectors.toList());
+  }
+
+  private Stream<ServiceWrapper<S, D>> getMatching(@Nullable Adaptable adaptable) {
     String resourcePath = resolverHelper.getResourcePath(adaptable);
     return services.stream()
-        .filter(service -> service.matches(resourcePath));
+        .filter(wrapper -> wrapper.matches(resourcePath));
+  }
+
+  private static class ServiceWrapper<S extends ContextAwareService, D> {
+
+    private final S service;
+    private final D decoration;
+    private final ServiceInfo<S> serviceInfo;
+
+    ServiceWrapper(ServiceObjects<S> serviceObjects, Function<ServiceObjects<S>, D> decorator) {
+      this.service = serviceObjects.getService();
+      this.decoration = decorator.apply(serviceObjects);
+      this.serviceInfo = new ServiceInfo<>(serviceObjects.getServiceReference(), this.service);
+    }
+
+    boolean isValid() {
+      return this.serviceInfo.isValid();
+    }
+
+    boolean matches(@Nullable String resourcePath) {
+      return this.serviceInfo.matches(resourcePath);
+    }
+
+    S getService() {
+      return this.service;
+    }
+
+    D getDecoration() {
+      return this.decoration;
+    }
+
   }
 
 }
