@@ -59,22 +59,22 @@ class TestServices {
   TestServices(AemContext context) {
     this.context = context;
 
-    this.contentService = registerDummySpi(new DummySpiImpl("/content/*"),
+    this.contentService = register(new DummySpiImpl("/content/*"),
         PROPERTY_CONTEXT_PATH_PATTERN, "^/content(/.*)?$",
         SERVICE_RANKING, 100);
-    this.contentDamService = registerDummySpi(new DummySpiImpl("/content/dam/*"),
+    this.contentDamService = register(new DummySpiImpl("/content/dam/*"),
         PROPERTY_CONTEXT_PATH_PATTERN, "^/content/dam(/.*)?$",
         SERVICE_RANKING, 200);
-    this.contentSampleService = registerDummySpi(new DummySpiImpl("/content/sample/*[!=exclude]"),
+    this.contentSampleService = register(new DummySpiImpl("/content/sample/*[!=exclude]"),
         PROPERTY_CONTEXT_PATH_PATTERN, "^/content/sample(/.*)?$",
         PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN, "^/content/sample/exclude(/.*)?$",
         SERVICE_RANKING, 300);
 
     // add some more services with high ranking but invalid properties - they should never be returned
-    registerDummySpi(new DummySpiImpl("invalid1"),
+    register(new DummySpiImpl("invalid1"),
         PROPERTY_CONTEXT_PATH_PATTERN, "(",
         SERVICE_RANKING, 10000);
-    registerDummySpi(new DummySpiImpl("invalid2"),
+    register(new DummySpiImpl("invalid2"),
         PROPERTY_CONTEXT_PATH_PATTERN, "^/content(/.*)?$",
         PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN, ")",
         SERVICE_RANKING, 20000);
@@ -97,7 +97,7 @@ class TestServices {
   }
 
   DummySpi addDefaultService() {
-    return registerDummySpi(new DummySpiImpl("default"),
+    return register(new DummySpiImpl("default"),
         SERVICE_RANKING, Integer.MIN_VALUE,
         PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY, true);
   }
@@ -107,12 +107,12 @@ class TestServices {
     // service gets path pattern from bundle header instead of service property
     ((MockBundle)context.bundleContext().getBundle()).setHeaders(ImmutableMap.of(
         PROPERTY_CONTEXT_PATH_PATTERN, "^/content/dam(/.*)?$"));
-    return registerDummySpi(new DummySpiImpl("/content/dam (bundle header)"),
+    return register(new DummySpiImpl("/content/dam (bundle header)"),
         SERVICE_RANKING, 1000);
   }
 
   @SuppressWarnings("null")
-  private DummySpi registerDummySpi(DummySpi service, Object... properties) {
+  private DummySpi register(DummySpi service, Object... properties) {
     Dictionary<String, Object> serviceProperties = MapUtil.toDictionary(properties);
     ServiceRegistration<DummySpi> serviceRegistration = context.bundleContext().registerService(DummySpi.class, service, serviceProperties);
     services.add(new MockServiceObjects<DummySpi>(serviceRegistration.getReference(), service));
