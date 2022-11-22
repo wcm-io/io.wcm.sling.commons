@@ -29,6 +29,7 @@ import org.apache.felix.inventory.InventoryPrinter;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import io.wcm.sling.commons.caservice.ContextAwareService;
 import io.wcm.sling.commons.caservice.ContextAwareServiceResolver;
 
 /**
@@ -53,18 +54,19 @@ public class ContextAwareServiceInventoryPrinter implements InventoryPrinter {
       return;
     }
 
-    ConcurrentMap<String, ContextAwareServiceTracker> map = ((ContextAwareServiceResolverImpl)contextAwareServiceResolver).getContextAwareServiceTrackerMap();
+    ConcurrentMap<String, ContextAwareServiceTracker<ContextAwareService>> map = ((ContextAwareServiceResolverImpl)contextAwareServiceResolver)
+        .getContextAwareServiceTrackerMap();
     if (map.isEmpty()) {
       pw.println();
       pw.println("No context-aware services found.");
       pw.println("The services are registered lazily on first access of the service interface or class.");
       return;
     }
-    for (Map.Entry<String, ContextAwareServiceTracker> entry : map.entrySet()) {
+    for (Map.Entry<String, ContextAwareServiceTracker<ContextAwareService>> entry : map.entrySet()) {
       pw.println();
       pw.println(entry.getKey());
       pw.println(StringUtils.repeat('-', entry.getKey().length()));
-      for (ServiceInfo serviceInfo : entry.getValue().getServiceInfos()) {
+      for (ServiceInfo<?> serviceInfo : entry.getValue().getServiceInfos()) {
         pw.print("- ");
         pw.println(serviceInfo.toString());
       }

@@ -46,11 +46,11 @@ import io.wcm.sling.commons.caservice.ContextAwareService;
 /**
  * Extracts metadata of a context-aware service implementation.
  */
-public class ServiceInfo {
+class ServiceInfo<T extends ContextAwareService> {
 
   private static final Pattern PATTERN_MATCH_ALL = Pattern.compile(".*");
 
-  private final ContextAwareService service;
+  private final @Nullable T service;
   private final Map<String, Object> servicePropertiesMap;
   private final Dictionary<String, Object> servicePropertiesDictionary;
   private final Pattern contextPathRegex;
@@ -65,7 +65,7 @@ public class ServiceInfo {
    * @param serviceReference Service reference
    * @param bundleContext Bundle context
    */
-  public ServiceInfo(@NotNull ServiceReference<?> serviceReference, @NotNull BundleContext bundleContext) {
+  ServiceInfo(@NotNull ServiceReference<T> serviceReference, @NotNull BundleContext bundleContext) {
     this(serviceReference, validateAndGetService(serviceReference, bundleContext));
   }
 
@@ -73,7 +73,7 @@ public class ServiceInfo {
    * @param serviceReference Service reference
    * @param service Service instance
    */
-  public ServiceInfo(@NotNull ServiceReference<?> serviceReference, @Nullable ContextAwareService service) {
+  ServiceInfo(@NotNull ServiceReference<T> serviceReference, @Nullable T service) {
     this.service = service;
     this.servicePropertiesDictionary = serviceReference.getProperties();
     this.servicePropertiesMap = propertiesToMap(serviceReference);
@@ -84,18 +84,21 @@ public class ServiceInfo {
     this.valid = service != null && contextPathRegex != null && contextPathBlacklistRegex != null;
   }
 
-  @SuppressWarnings("PMD.GuardLogStatement")
-  private static ContextAwareService validateAndGetService(ServiceReference<?> serviceReference, BundleContext bundleContext) {
+  @SuppressWarnings("unchecked")
+  private static <T extends ContextAwareService> @Nullable T validateAndGetService(
+      @NotNull ServiceReference<T> serviceReference, @NotNull BundleContext bundleContext) {
     Object serviceObject = bundleContext.getService(serviceReference);
     if (serviceObject instanceof ContextAwareService) {
-      return (ContextAwareService)serviceObject;
+      return (T)serviceObject;
     }
-    log.warn("Service implementation {} does not implement the ContextAwareService interface"
-        + " - service will be ignored for context-aware service resolution.", (serviceObject != null ? serviceObject.getClass().getName() : ""));
+    if (log.isWarnEnabled()) {
+      log.warn("Service implementation {} does not implement the ContextAwareService interface"
+          + " - service will be ignored for context-aware service resolution.", (serviceObject != null ? serviceObject.getClass().getName() : ""));
+    }
     return null;
   }
 
-  private static Map<String, Object> propertiesToMap(ServiceReference<?> reference) {
+  private static <T extends ContextAwareService> Map<String, Object> propertiesToMap(@NotNull ServiceReference<T> reference) {
     Map<String, Object> props = new HashMap<>();
     for (String propertyName : reference.getPropertyKeys()) {
       props.put(propertyName, reference.getProperty(propertyName));
@@ -103,7 +106,8 @@ public class ServiceInfo {
     return props;
   }
 
-  private static Object lookupServicePropertyBundleHeader(ServiceReference<?> serviceReference, String propertyName) {
+  private static <T extends ContextAwareService> Object lookupServicePropertyBundleHeader(
+      @NotNull ServiceReference<T> serviceReference, @NotNull String propertyName) {
     Object value = serviceReference.getProperty(propertyName);
     if (value == null) {
       value = serviceReference.getBundle().getHeaders().get(propertyName);
@@ -111,9 +115,8 @@ public class ServiceInfo {
     return value;
   }
 
-  @SuppressWarnings("PMD.GuardLogStatement")
-  private static Pattern validateAndParsePattern(ServiceReference<?> serviceReference, ContextAwareService service,
-      String patternPropertyName) {
+  private static <T extends ContextAwareService> Pattern validateAndParsePattern(
+      @NotNull ServiceReference<T> serviceReference, @Nullable T service, @NotNull String patternPropertyName) {
     Object value = lookupServicePropertyBundleHeader(serviceReference, patternPropertyName);
     if (value == null || value instanceof String) {
       String patternString = (String)value;
@@ -129,8 +132,10 @@ public class ServiceInfo {
         }
       }
     }
-    log.warn("Invalid {} regex pattern '{}' - service {} from bundle {} will be ignored for context-aware service resolution.",
-        patternPropertyName, value, service != null ? service.getClass().getName() : "", serviceReference.getBundle().getSymbolicName());
+    if (log.isWarnEnabled()) {
+      log.warn("Invalid {} regex pattern '{}' - service {} from bundle {} will be ignored for context-aware service resolution.",
+          patternPropertyName, value, service != null ? service.getClass().getName() : "", serviceReference.getBundle().getSymbolicName());
+    }
     return null;
   }
 
@@ -148,7 +153,7 @@ public class ServiceInfo {
    * Service implementation.
    * @return Service object.
    */
-  public ContextAwareService getService() {
+  public @Nullable T getService() {
     return this.service;
   }
 
@@ -172,7 +177,7 @@ public class ServiceInfo {
    * @param resourcePath Resource path
    * @return true if the implementation matches and the configuration is not invalid.
    */
-  public boolean matches(String resourcePath) {
+  public boolean matchesPath(String resourcePath) {
     if (!valid) {
       return false;
     }

@@ -19,10 +19,14 @@
  */
 package io.wcm.sling.commons.caservice.impl;
 
+import static io.wcm.sling.commons.caservice.ContextAwareService.PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY;
+import static io.wcm.sling.commons.caservice.ContextAwareService.PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN;
+import static io.wcm.sling.commons.caservice.ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.osgi.framework.Constants.SERVICE_RANKING;
 
 import java.util.stream.Collectors;
 
@@ -31,13 +35,11 @@ import org.apache.sling.testing.mock.osgi.MockBundle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import io.wcm.sling.commons.caservice.ContextAwareService;
 import io.wcm.sling.commons.caservice.ContextAwareServiceResolver;
 import io.wcm.sling.commons.caservice.ContextAwareServiceResolver.ResolveAllResult;
 import io.wcm.sling.commons.caservice.PathPreprocessor;
@@ -45,7 +47,6 @@ import io.wcm.testing.mock.aem.junit5.AemContext;
 import io.wcm.testing.mock.aem.junit5.AemContextExtension;
 
 @ExtendWith(AemContextExtension.class)
-@SuppressWarnings("null")
 class ContextAwareServiceResolverImplTest {
 
   private static final String CUSTOM_PROPERTY = "myprop1";
@@ -60,37 +61,37 @@ class ContextAwareServiceResolverImplTest {
 
   @BeforeEach
   void setUp() {
-    contentImpl = context.registerService(DummySpi.class, new DummySpiImpl(),
-        ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN, "^/content(/.*)?$",
+    contentImpl = context.registerService(DummySpi.class, new DummySpiImpl("/content/*"),
+        PROPERTY_CONTEXT_PATH_PATTERN, "^/content(/.*)?$",
         CUSTOM_PROPERTY, "s1",
-        Constants.SERVICE_RANKING, 100);
-    contentDamImpl = context.registerService(DummySpi.class, new DummySpiImpl(),
-        ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN, "^/content/dam(/.*)?$",
+        SERVICE_RANKING, 100);
+    contentDamImpl = context.registerService(DummySpi.class, new DummySpiImpl("/content/dam/*"),
+        PROPERTY_CONTEXT_PATH_PATTERN, "^/content/dam(/.*)?$",
         CUSTOM_PROPERTY, "s2",
-        Constants.SERVICE_RANKING, 200);
-    contentSampleImpl = context.registerService(DummySpi.class, new DummySpiImpl(),
-        ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN, "^/content/sample(/.*)?$",
-        ContextAwareService.PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN, "^/content/sample/exclude(/.*)?$",
+        SERVICE_RANKING, 200);
+    contentSampleImpl = context.registerService(DummySpi.class, new DummySpiImpl("/content/sample/*[!=exclude]"),
+        PROPERTY_CONTEXT_PATH_PATTERN, "^/content/sample(/.*)?$",
+        PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN, "^/content/sample/exclude(/.*)?$",
         CUSTOM_PROPERTY, "s3",
-        Constants.SERVICE_RANKING, 300);
+        SERVICE_RANKING, 300);
 
     // add some more services with high ranking but invalid properties - they should never be returned
-    context.registerService(DummySpi.class, new DummySpiImpl(),
-        ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN, "(",
-        Constants.SERVICE_RANKING, 10000);
-    context.registerService(DummySpi.class, new DummySpiImpl(),
-        ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN, "^/content(/.*)?$",
-        ContextAwareService.PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN, ")",
-        Constants.SERVICE_RANKING, 20000);
+    context.registerService(DummySpi.class, new DummySpiImpl("invalid1"),
+        PROPERTY_CONTEXT_PATH_PATTERN, "(",
+        SERVICE_RANKING, 10000);
+    context.registerService(DummySpi.class, new DummySpiImpl("invalid2"),
+        PROPERTY_CONTEXT_PATH_PATTERN, "^/content(/.*)?$",
+        PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN, ")",
+        SERVICE_RANKING, 20000);
 
     underTest = context.registerInjectActivateService(new ContextAwareServiceResolverImpl());
   }
 
   @Test
   void testWithDefaultImpl() {
-    DummySpi defaultImpl = context.registerService(DummySpi.class, new DummySpiImpl(),
-        Constants.SERVICE_RANKING, Integer.MIN_VALUE,
-        ContextAwareService.PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY, true);
+    DummySpi defaultImpl = context.registerService(DummySpi.class, new DummySpiImpl("default"),
+        SERVICE_RANKING, Integer.MIN_VALUE,
+        PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY, true);
 
     assertSame(contentImpl, underTest.resolve(DummySpi.class, context.create().resource("/content/test1")));
     assertSame(contentSampleImpl, underTest.resolve(DummySpi.class, context.create().resource("/content/sample/test1")));
@@ -118,9 +119,9 @@ class ContextAwareServiceResolverImplTest {
 
   @Test
   void testWithSlingHttpServletRequest() {
-    DummySpi defaultImpl = context.registerService(DummySpi.class, new DummySpiImpl(),
-        Constants.SERVICE_RANKING, Integer.MIN_VALUE,
-        ContextAwareService.PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY, true);
+    DummySpi defaultImpl = context.registerService(DummySpi.class, new DummySpiImpl("default"),
+        SERVICE_RANKING, Integer.MIN_VALUE,
+        PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY, true);
 
     context.currentResource(context.create().resource("/content/sample/test1"));
     assertSame(contentSampleImpl, underTest.resolve(DummySpi.class, context.request()));
@@ -135,9 +136,9 @@ class ContextAwareServiceResolverImplTest {
    */
   @Test
   void testWithSlingHttpServletRequest_ResourceOtherContext() {
-    DummySpi defaultImpl = context.registerService(DummySpi.class, new DummySpiImpl(),
-        Constants.SERVICE_RANKING, Integer.MIN_VALUE,
-        ContextAwareService.PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY, true);
+    DummySpi defaultImpl = context.registerService(DummySpi.class, new DummySpiImpl("default"),
+        SERVICE_RANKING, Integer.MIN_VALUE,
+        PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY, true);
 
     context.currentPage(context.create().page("/content/sample/test1"));
     context.currentResource(context.create().resource("/content/experience-fragments/test1"));
@@ -149,9 +150,9 @@ class ContextAwareServiceResolverImplTest {
 
   @Test
   void testWithNull() {
-    DummySpi defaultImpl = context.registerService(DummySpi.class, new DummySpiImpl(),
-        Constants.SERVICE_RANKING, Integer.MIN_VALUE,
-        ContextAwareService.PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY, true);
+    DummySpi defaultImpl = context.registerService(DummySpi.class, new DummySpiImpl("default"),
+        SERVICE_RANKING, Integer.MIN_VALUE,
+        PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY, true);
 
     assertSame(defaultImpl, underTest.resolve(DummySpi.class, null));
 
@@ -169,13 +170,14 @@ class ContextAwareServiceResolverImplTest {
   }
 
   @Test
+  @SuppressWarnings("null")
   void testWithBundleHeader() {
 
     // service gets path pattern from bundle header instead of service property
     ((MockBundle)context.bundleContext().getBundle()).setHeaders(ImmutableMap.of(
-        ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN, "^/content/dam(/.*)?$"));
-    DummySpi contentDamImplWithBundleHeader = context.registerService(DummySpi.class, new DummySpiImpl(),
-        Constants.SERVICE_RANKING, 1000);
+        PROPERTY_CONTEXT_PATH_PATTERN, "^/content/dam(/.*)?$"));
+    DummySpi contentDamImplWithBundleHeader = context.registerService(DummySpi.class, new DummySpiImpl("/content/dam (bundle header)"),
+        SERVICE_RANKING, 1000);
 
 
     assertSame(contentImpl, underTest.resolve(DummySpi.class, context.create().resource("/content/test1")));

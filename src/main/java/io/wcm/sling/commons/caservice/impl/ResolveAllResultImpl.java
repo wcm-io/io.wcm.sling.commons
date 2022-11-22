@@ -30,11 +30,12 @@ import io.wcm.sling.commons.caservice.ContextAwareServiceResolver.ResolveAllResu
 class ResolveAllResultImpl<T extends ContextAwareService> implements ResolveAllResult<T> {
 
   private final Stream<T> services;
-  private final Supplier<String> combinedKey;
+  private final Supplier<String> combinedKeySupplier;
+  private String combinedKey;
 
-  ResolveAllResultImpl(Stream<T> services, Supplier<String> combinedKey) {
+  ResolveAllResultImpl(Stream<T> services, Supplier<String> combinedKeySupplier) {
     this.services = services;
-    this.combinedKey = combinedKey;
+    this.combinedKeySupplier = combinedKeySupplier;
   }
 
   @Override
@@ -44,7 +45,10 @@ class ResolveAllResultImpl<T extends ContextAwareService> implements ResolveAllR
 
   @Override
   public @NotNull String getCombinedKey() {
-    return combinedKey.get();
+    if (combinedKey == null) {
+      combinedKey = combinedKeySupplier.get();
+    }
+    return combinedKey;
   }
 
 }

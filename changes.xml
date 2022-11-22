@@ -25,6 +25,9 @@
 
     <release version="1.6.0" date="not released">
       <action type="add" dev="sseifert">
+        ContextAwareServiceResolver: Add ContextAwareServiceCollectionResolver that allows context-aware filtering of a pre-propulated service collections (e.g. managed by Declarative Services).
+      </action>
+      <action type="add" dev="sseifert">
         ContextAwareServiceResolver: Support OSGi filter argument to filter resolved services.
       </action>
     </release>

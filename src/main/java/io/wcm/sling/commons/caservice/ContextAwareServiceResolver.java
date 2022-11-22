@@ -19,6 +19,7 @@
  */
 package io.wcm.sling.commons.caservice;
 
+import java.util.Collection;
 import java.util.stream.Stream;
 
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceObjects;
 
 /**
  * Resolves the best-matching context-aware service implementation.
@@ -47,7 +49,7 @@ public interface ContextAwareServiceResolver {
    * @param <T> Service interface or class
    * @return Service implementation or null if no match found.
    */
-  <T extends ContextAwareService> @Nullable T resolve(@NotNull Class<T> serviceClass, @NotNull Adaptable adaptable);
+  <T extends ContextAwareService> @Nullable T resolve(@NotNull Class<T> serviceClass, @Nullable Adaptable adaptable);
 
   /**
    * Resolves the best-matching service implementation for the given resource context.
@@ -63,7 +65,7 @@ public interface ContextAwareServiceResolver {
    * @return Service implementation or null if no match found.
    * @throws InvalidSyntaxException If the specified filter contains an invalid filter expression that cannot be parsed.
    */
-  <T extends ContextAwareService> @Nullable T resolve(@NotNull Class<T> serviceClass, @NotNull Adaptable adaptable,
+  <T extends ContextAwareService> @Nullable T resolve(@NotNull Class<T> serviceClass, @Nullable Adaptable adaptable,
       @Nullable String filter) throws InvalidSyntaxException;
 
   /**
@@ -78,7 +80,7 @@ public interface ContextAwareServiceResolver {
    * @param <T> Service interface or class
    * @return Collection of all matching services
    */
-  <T extends ContextAwareService> @NotNull ResolveAllResult<T> resolveAll(@NotNull Class<T> serviceClass, @NotNull Adaptable adaptable);
+  <T extends ContextAwareService> @NotNull ResolveAllResult<T> resolveAll(@NotNull Class<T> serviceClass, @Nullable Adaptable adaptable);
 
   /**
    * Resolves all matching service implementations for the given resource context.
@@ -94,8 +96,20 @@ public interface ContextAwareServiceResolver {
    * @return Collection of all matching services
    * @throws InvalidSyntaxException If the specified filter contains an invalid filter expression that cannot be parsed.
    */
-  <T extends ContextAwareService> @NotNull ResolveAllResult<T> resolveAll(@NotNull Class<T> serviceClass, @NotNull Adaptable adaptable,
+  <T extends ContextAwareService> @NotNull ResolveAllResult<T> resolveAll(@NotNull Class<T> serviceClass, @Nullable Adaptable adaptable,
       @Nullable String filter) throws InvalidSyntaxException;
+
+  /**
+   * Gets a {@link ContextAwareServiceCollectionResolver} which operates on a given collection of service objects
+   * of the required service. This collection is usually managed by OSGi Declarative Services and expected
+   * to contain all services with the service interface order by service ranking (high to low).
+   * The collection resolver helps to get service(s) matching the resource context out of this list.
+   * @param <T> Service interface or class
+   * @param serviceObjectsCollection Collection of service objects
+   * @return Collection resolver
+   */
+  <T extends ContextAwareService> @NotNull ContextAwareServiceCollectionResolver<T> getCollectionResolver(
+      @NotNull Collection<ServiceObjects<T>> serviceObjectsCollection);
 
   /**
    * Result of the {@link ContextAwareServiceResolver#resolveAll(Class, Adaptable)} method.
