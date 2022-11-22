@@ -19,15 +19,15 @@
  */
 package io.wcm.sling.commons.caservice.impl;
 
-import org.osgi.framework.ServiceObjects;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentServiceObjects;
 
-class MockServiceObjects<S> implements ServiceObjects<S> {
+class MockComponentServiceObjects<S> implements ComponentServiceObjects<S> {
 
   private final ServiceReference<S> serviceReference;
   private final S service;
 
-  MockServiceObjects(ServiceReference<S> serviceReference, S service) {
+  MockComponentServiceObjects(ServiceReference<S> serviceReference, S service) {
     this.serviceReference = serviceReference;
     this.service = service;
   }

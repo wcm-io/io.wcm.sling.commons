@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 import org.apache.sling.api.adapter.Adaptable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.osgi.framework.ServiceObjects;
+import org.osgi.service.component.ComponentServiceObjects;
 
 import io.wcm.sling.commons.caservice.ContextAwareService;
 import io.wcm.sling.commons.caservice.ContextAwareServiceCollectionResolver;
@@ -38,8 +38,8 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
   private final Collection<ServiceWrapper<S, D>> services;
   private final ResourcePathResolver resourcePathResolver;
 
-  ContextAwareServiceCollectionResolverImpl(@NotNull Collection<ServiceObjects<S>> serviceObjectsCollection,
-      Function<ServiceObjects<S>, D> decorator, @NotNull ResourcePathResolver resourcePathResolver) {
+  ContextAwareServiceCollectionResolverImpl(@NotNull Collection<ComponentServiceObjects<S>> serviceObjectsCollection,
+      Function<ComponentServiceObjects<S>, D> decorator, @NotNull ResourcePathResolver resourcePathResolver) {
     this.services = serviceObjectsCollection.stream()
         .map(serviceObjects -> new ServiceWrapper<>(serviceObjects, decorator))
         .filter(ServiceWrapper::isValid)
@@ -89,7 +89,7 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
     private final D decoration;
     private final ServiceInfo<S> serviceInfo;
 
-    ServiceWrapper(ServiceObjects<S> serviceObjects, Function<ServiceObjects<S>, D> decorator) {
+    ServiceWrapper(ComponentServiceObjects<S> serviceObjects, Function<ComponentServiceObjects<S>, D> decorator) {
       this.service = serviceObjects.getService();
       this.decoration = decorator.apply(serviceObjects);
       this.serviceInfo = new ServiceInfo<>(serviceObjects.getServiceReference(), this.service);

@@ -29,7 +29,7 @@ import org.apache.sling.api.resource.Resource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.annotation.versioning.ProviderType;
-import org.osgi.framework.ServiceObjects;
+import org.osgi.service.component.ComponentServiceObjects;
 
 /**
  * Resolves the best-matching context-aware service implementation.
@@ -75,7 +75,7 @@ public interface ContextAwareServiceResolver {
    * @return Collection resolver
    */
   <S extends ContextAwareService> @NotNull ContextAwareServiceCollectionResolver<S, Void> getCollectionResolver(
-      @NotNull Collection<ServiceObjects<S>> serviceObjectsCollection);
+      @NotNull Collection<ComponentServiceObjects<S>> serviceObjectsCollection);
 
   /**
    * Gets a {@link ContextAwareServiceCollectionResolver} which operates on a given collection of service objects
@@ -89,8 +89,8 @@ public interface ContextAwareServiceResolver {
    * @return Collection resolver
    */
   <S extends ContextAwareService, D> @NotNull ContextAwareServiceCollectionResolver<S, D> getCollectionResolver(
-      @NotNull Collection<ServiceObjects<S>> serviceObjectsCollection,
-      Function<ServiceObjects<S>, D> decorator);
+      @NotNull Collection<ComponentServiceObjects<S>> serviceObjectsCollection,
+      Function<ComponentServiceObjects<S>, D> decorator);
 
   /**
    * Result of the {@link ContextAwareServiceResolver#resolveAll(Class, Adaptable)} method.

@@ -19,13 +19,13 @@
  */
 package io.wcm.sling.commons.caservice.impl;
 
-import org.osgi.framework.ServiceObjects;
+import org.osgi.service.component.ComponentServiceObjects;
 
 class DummySpiDecorator {
 
   private final DummySpi service;
 
-  DummySpiDecorator(ServiceObjects<DummySpi> serviceObjects) {
+  DummySpiDecorator(ComponentServiceObjects<DummySpi> serviceObjects) {
     this.service = serviceObjects.getService();
   }
 

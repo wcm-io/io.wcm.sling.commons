@@ -31,7 +31,7 @@ import org.apache.sling.api.adapter.Adaptable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceObjects;
+import org.osgi.service.component.ComponentServiceObjects;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -118,13 +118,14 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
 
   @Override
   public <S extends ContextAwareService> @NotNull ContextAwareServiceCollectionResolver<S, Void> getCollectionResolver(
-      @NotNull Collection<ServiceObjects<S>> serviceObjectsCollection) {
+      @NotNull Collection<ComponentServiceObjects<S>> serviceObjectsCollection) {
     return getCollectionResolver(serviceObjectsCollection, item -> null);
   }
 
   @Override
   public <S extends ContextAwareService, D> @NotNull ContextAwareServiceCollectionResolver<S, D> getCollectionResolver(
-      @NotNull Collection<ServiceObjects<S>> serviceObjectsCollection, Function<ServiceObjects<S>, D> decorator) {
+      @NotNull Collection<ComponentServiceObjects<S>> serviceObjectsCollection,
+      Function<ComponentServiceObjects<S>, D> decorator) {
     return new ContextAwareServiceCollectionResolverImpl<>(serviceObjectsCollection, decorator, resourcePathResolver);
   }
 
