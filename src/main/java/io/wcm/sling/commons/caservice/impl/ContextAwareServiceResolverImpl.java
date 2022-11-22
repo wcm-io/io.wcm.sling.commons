@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.sling.api.adapter.Adaptable;
@@ -61,7 +62,7 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
   @Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
   private PathPreprocessor pathPreprocessor;
 
-  private ResolverHelper resolverHelper;
+  private ResourcePathResolver resourcePathResolver;
 
   private static final Logger log = LoggerFactory.getLogger(ContextAwareServiceResolverImpl.class);
 
@@ -70,26 +71,8 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
 
   @Activate
   private void activate(BundleContext bundleContext) {
-    this.resolverHelper = new ResolverHelper(pathPreprocessor);
+    this.resourcePathResolver = new ResourcePathResolver(pathPreprocessor);
     this.serviceTrackerCache = buildServiceTrackerCache(bundleContext);
-  }
-
-  private static <T extends ContextAwareService> LoadingCache<String, ContextAwareServiceTracker<T>> buildServiceTrackerCache(
-      BundleContext bundleContext) {
-    return CacheBuilder.newBuilder()
-        .removalListener(new RemovalListener<String, ContextAwareServiceTracker<T>>() {
-          @SuppressWarnings("null")
-          @Override
-          public void onRemoval(RemovalNotification<String, ContextAwareServiceTracker<T>> notification) {
-            notification.getValue().dispose();
-          }
-        })
-        .build(new CacheLoader<String, ContextAwareServiceTracker<T>>() {
-          @Override
-          public ContextAwareServiceTracker load(String className) {
-            return new ContextAwareServiceTracker<>(className, bundleContext);
-          }
-        });
   }
 
   @Deactivate
@@ -97,20 +80,38 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
     this.serviceTrackerCache.invalidateAll();
   }
 
+  private static <S extends ContextAwareService> LoadingCache<String, ContextAwareServiceTracker<S>> buildServiceTrackerCache(
+      BundleContext bundleContext) {
+    return CacheBuilder.newBuilder()
+        .removalListener(new RemovalListener<String, ContextAwareServiceTracker<S>>() {
+          @SuppressWarnings("null")
+          @Override
+          public void onRemoval(RemovalNotification<String, ContextAwareServiceTracker<S>> notification) {
+            notification.getValue().dispose();
+          }
+        })
+        .build(new CacheLoader<String, ContextAwareServiceTracker<S>>() {
+          @Override
+          public ContextAwareServiceTracker load(String className) {
+            return new ContextAwareServiceTracker<>(className, bundleContext);
+          }
+        });
+  }
+
   @Override
   @SuppressWarnings("null")
-  public <T extends ContextAwareService> T resolve(@NotNull Class<T> serviceClass, @Nullable Adaptable adaptable) {
-    ContextAwareServiceTracker<T> serviceTracker = getServiceTracker(serviceClass);
-    return resolverHelper.getValidServices(getMatchingServiceInfos(serviceTracker, adaptable))
+  public <S extends ContextAwareService> S resolve(@NotNull Class<S> serviceClass, @Nullable Adaptable adaptable) {
+    ContextAwareServiceTracker<S> serviceTracker = getServiceTracker(serviceClass);
+    return getValidServices(getMatchingServiceInfos(serviceTracker, adaptable))
         .findFirst().orElse(null);
   }
 
   @Override
-  public <T extends ContextAwareService> @NotNull ResolveAllResult<T> resolveAll(@NotNull Class<T> serviceClass,
+  public <S extends ContextAwareService> @NotNull ResolveAllResult<S> resolveAll(@NotNull Class<S> serviceClass,
       @Nullable Adaptable adaptable) {
-    ContextAwareServiceTracker<T> serviceTracker = getServiceTracker(serviceClass);
-    Stream<T> services = resolverHelper.getValidServices(getMatchingServiceInfos(serviceTracker, adaptable));
-    Supplier<String> combinedKey = resolverHelper.buildCombinedKey(serviceTracker.getLastServiceChangeTimestamp(),
+    ContextAwareServiceTracker<S> serviceTracker = getServiceTracker(serviceClass);
+    Stream<S> services = getValidServices(getMatchingServiceInfos(serviceTracker, adaptable));
+    Supplier<String> combinedKey = buildCombinedKey(serviceTracker.getLastServiceChangeTimestamp(),
         getMatchingServiceInfos(serviceTracker, adaptable));
     return new ResolveAllResultImpl<>(services, combinedKey);
   }
@@ -124,12 +125,12 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
   @Override
   public <S extends ContextAwareService, D> @NotNull ContextAwareServiceCollectionResolver<S, D> getCollectionResolver(
       @NotNull Collection<ServiceObjects<S>> serviceObjectsCollection, Function<ServiceObjects<S>, D> decorator) {
-    return new ContextAwareServiceCollectionResolverImpl<>(serviceObjectsCollection, decorator, resolverHelper);
+    return new ContextAwareServiceCollectionResolverImpl<>(serviceObjectsCollection, decorator, resourcePathResolver);
   }
 
-  private <T extends ContextAwareService> Stream<ServiceInfo<T>> getMatchingServiceInfos(
-      @NotNull ContextAwareServiceTracker<T> serviceTracker, @Nullable Adaptable adaptable) {
-    String resourcePath = resolverHelper.getResourcePath(adaptable);
+  private <S extends ContextAwareService> Stream<ServiceInfo<S>> getMatchingServiceInfos(
+      @NotNull ContextAwareServiceTracker<S> serviceTracker, @Nullable Adaptable adaptable) {
+    String resourcePath = resourcePathResolver.get(adaptable);
     if (log.isTraceEnabled()) {
       log.trace("Resolve {} for resource {}", serviceTracker.getServiceClassName(), resourcePath);
     }
@@ -140,7 +141,7 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
       "java:S112", // allow generic exception
       "unchecked"
   })
-  private <T extends ContextAwareService> ContextAwareServiceTracker<T> getServiceTracker(Class<T> serviceClass) {
+  private <S extends ContextAwareService> ContextAwareServiceTracker<S> getServiceTracker(Class<S> serviceClass) {
     try {
       return (ContextAwareServiceTracker)serviceTrackerCache.get(serviceClass.getName());
     }
@@ -151,6 +152,19 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
 
   ConcurrentMap<String, ContextAwareServiceTracker<ContextAwareService>> getContextAwareServiceTrackerMap() {
     return serviceTrackerCache.asMap();
+  }
+
+  @SuppressWarnings("null")
+  private static <S extends ContextAwareService> Stream<S> getValidServices(Stream<ServiceInfo<S>> serviceInfos) {
+    return serviceInfos
+        .filter(ServiceInfo::isValid)
+        .map(ServiceInfo::getService);
+  }
+
+  private static <S extends ContextAwareService> @NotNull Supplier<String> buildCombinedKey(long timestamp,
+      @NotNull Stream<ServiceInfo<S>> serviceInfos) {
+    return () -> timestamp + "\n"
+        + serviceInfos.map(ServiceInfo::getKey).collect(Collectors.joining("\n~\n"));
   }
 
 }

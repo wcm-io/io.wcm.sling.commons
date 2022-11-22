@@ -36,15 +36,15 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
     implements ContextAwareServiceCollectionResolver<S, D> {
 
   private final Collection<ServiceWrapper<S, D>> services;
-  private final ResolverHelper resolverHelper;
+  private final ResourcePathResolver resourcePathResolver;
 
   ContextAwareServiceCollectionResolverImpl(@NotNull Collection<ServiceObjects<S>> serviceObjectsCollection,
-      Function<ServiceObjects<S>, D> decorator, @NotNull ResolverHelper resolverHelper) {
+      Function<ServiceObjects<S>, D> decorator, @NotNull ResourcePathResolver resourcePathResolver) {
     this.services = serviceObjectsCollection.stream()
         .map(serviceObjects -> new ServiceWrapper<>(serviceObjects, decorator))
         .filter(ServiceWrapper::isValid)
         .collect(Collectors.toList());
-    this.resolverHelper = resolverHelper;
+    this.resourcePathResolver = resourcePathResolver;
   }
 
   @Override
@@ -80,7 +80,7 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
   }
 
   private Stream<ServiceWrapper<S, D>> getMatching(@Nullable Adaptable adaptable) {
-    String resourcePath = resolverHelper.getResourcePath(adaptable);
+    String resourcePath = resourcePathResolver.get(adaptable);
     return services.stream()
         .filter(wrapper -> wrapper.matches(resourcePath));
   }

@@ -22,28 +22,28 @@ package io.wcm.sling.commons.caservice.impl;
 import org.osgi.framework.ServiceObjects;
 import org.osgi.framework.ServiceReference;
 
-class MockServiceObjects<T> implements ServiceObjects<T> {
+class MockServiceObjects<S> implements ServiceObjects<S> {
 
-  private final ServiceReference<T> serviceReference;
-  private final T service;
+  private final ServiceReference<S> serviceReference;
+  private final S service;
 
-  MockServiceObjects(ServiceReference<T> serviceReference, T service) {
+  MockServiceObjects(ServiceReference<S> serviceReference, S service) {
     this.serviceReference = serviceReference;
     this.service = service;
   }
 
   @Override
-  public ServiceReference<T> getServiceReference() {
+  public ServiceReference<S> getServiceReference() {
     return serviceReference;
   }
 
   @Override
-  public T getService() {
+  public S getService() {
     return service;
   }
 
   @Override
-  public void ungetService(T svc) {
+  public void ungetService(S svc) {
     // ignore
   }
 

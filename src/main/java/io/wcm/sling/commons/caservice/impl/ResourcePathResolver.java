@@ -19,30 +19,24 @@
  */
 package io.wcm.sling.commons.caservice.impl;
 
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.adapter.Adaptable;
 import org.apache.sling.api.resource.Resource;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.day.cq.wcm.api.components.ComponentContext;
 import com.day.cq.wcm.commons.WCMUtils;
 
-import io.wcm.sling.commons.caservice.ContextAwareService;
 import io.wcm.sling.commons.caservice.PathPreprocessor;
 
 /**
  * Helps mapping adaptable to actual resource, and getting resource path respecting a path preprocessor.
  */
-class ResolverHelper {
+class ResourcePathResolver {
 
   private final PathPreprocessor pathPreprocessor;
 
-  ResolverHelper(@Nullable PathPreprocessor pathPreprocessor) {
+  ResourcePathResolver(@Nullable PathPreprocessor pathPreprocessor) {
     this.pathPreprocessor = pathPreprocessor;
   }
 
@@ -51,7 +45,7 @@ class ResolverHelper {
    * @param adaptable Either a {@link Resource} or a {@link SlingHttpServletRequest} instance.
    * @return Resource path or null
    */
-  public @Nullable String getResourcePath(@Nullable Adaptable adaptable) {
+  public @Nullable String get(@Nullable Adaptable adaptable) {
     Resource resource = getResourceFromAdaptable(adaptable);
     String path = null;
     if (resource != null) {
@@ -81,32 +75,6 @@ class ResolverHelper {
       }
     }
     return null;
-  }
-
-  /**
-   * Maps a list of service infos to a list of services, filtering out invalid ones.
-   * @param <T> Service class or interface
-   * @param serviceInfos Service infos
-   * @return Valid services
-   */
-  @SuppressWarnings("null")
-  public <T extends ContextAwareService> Stream<T> getValidServices(Stream<ServiceInfo<T>> serviceInfos) {
-    return serviceInfos
-        .filter(ServiceInfo::isValid)
-        .map(ServiceInfo::getService);
-  }
-
-  /**
-   * Build a timestamp for {@link ResolveAllResultImpl} based on timestamp of service tracker/collection
-   * and the stream of returned services.
-   * @param timestamp Timestamp from service tracker or collection.
-   * @param serviceInfos Service infos
-   * @return Supplier which builds timestamp on demand.
-   */
-  public <T extends ContextAwareService> @NotNull Supplier<String> buildCombinedKey(long timestamp,
-      @NotNull Stream<ServiceInfo<T>> serviceInfos) {
-    return () -> timestamp + "\n"
-        + serviceInfos.map(ServiceInfo::getKey).collect(Collectors.joining("\n~\n"));
   }
 
 }
