@@ -84,7 +84,7 @@ class ContextAwareServiceCollectionResolverImplTest {
   void testWithDefaultImpl_Decorated() {
     DummySpi defaultImpl = testServices.addDefaultService();
     ContextAwareServiceCollectionResolver<DummySpi, DummySpiDecorator> underTest = contextAwareServiceResolver
-        .getCollectionResolver(testServices.getServices(), DummySpiDecorator::new);
+        .getCollectionResolver(testServices.getServices(), (ref, service) -> new DummySpiDecorator(service));
 
     assertSame(contentImpl, underTest.resolveDecorated(context.create().resource("/content/test1")).getService());
     assertSame(contentSampleImpl, underTest.resolveDecorated(context.create().resource("/content/sample/test1")).getService());
@@ -189,5 +189,7 @@ class ContextAwareServiceCollectionResolverImplTest {
     assertEquals(ImmutableList.of(contentDamImpl, contentImpl),
         underTest.resolveAll(context.create().resource("/pathprefix/content/dam/test2")).collect(Collectors.toList()));
   }
+
+  // TODO: test dynamically changing service list
 
 }

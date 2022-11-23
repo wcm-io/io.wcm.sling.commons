@@ -31,8 +31,8 @@ import java.util.TreeSet;
 
 import org.apache.sling.testing.mock.osgi.MapUtil;
 import org.apache.sling.testing.mock.osgi.MockBundle;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.component.ComponentServiceObjects;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -49,11 +49,11 @@ class TestServices {
   private final DummySpi contentDamService;
   private final DummySpi contentSampleService;
 
-  private final Collection<ComponentServiceObjects<DummySpi>> services = new TreeSet<>(
-      new Comparator<ComponentServiceObjects<DummySpi>>() {
+  private final Collection<ServiceReference<DummySpi>> services = new TreeSet<>(
+      new Comparator<ServiceReference<DummySpi>>() {
         @Override
-        public int compare(ComponentServiceObjects<DummySpi> o1, ComponentServiceObjects<DummySpi> o2) {
-          return o2.getServiceReference().compareTo(o1.getServiceReference());
+        public int compare(ServiceReference<DummySpi> o1, ServiceReference<DummySpi> o2) {
+          return o2.compareTo(o1);
         }
       });
 
@@ -81,7 +81,7 @@ class TestServices {
         SERVICE_RANKING, 20000);
   }
 
-  Collection<ComponentServiceObjects<DummySpi>> getServices() {
+  Collection<ServiceReference<DummySpi>> getServices() {
     return this.services;
   }
 
@@ -116,7 +116,7 @@ class TestServices {
   private DummySpi register(DummySpi service, Object... properties) {
     Dictionary<String, Object> serviceProperties = MapUtil.toDictionary(properties);
     ServiceRegistration<DummySpi> serviceRegistration = context.bundleContext().registerService(DummySpi.class, service, serviceProperties);
-    services.add(new MockComponentServiceObjects<DummySpi>(serviceRegistration.getReference(), service));
+    services.add(serviceRegistration.getReference());
     return service;
   }
 

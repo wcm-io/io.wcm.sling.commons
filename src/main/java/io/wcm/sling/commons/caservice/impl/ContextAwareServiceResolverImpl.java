@@ -22,7 +22,7 @@ package io.wcm.sling.commons.caservice.impl;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,7 +31,7 @@ import org.apache.sling.api.adapter.Adaptable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.ComponentServiceObjects;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -62,17 +62,19 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
   @Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
   private PathPreprocessor pathPreprocessor;
 
+  private BundleContext bundleContext;
   private ResourcePathResolver resourcePathResolver;
-
-  private static final Logger log = LoggerFactory.getLogger(ContextAwareServiceResolverImpl.class);
 
   // cache of service trackers for each SPI interface
   private LoadingCache<String, ContextAwareServiceTracker<ContextAwareService>> serviceTrackerCache;
 
+  private static final Logger log = LoggerFactory.getLogger(ContextAwareServiceResolverImpl.class);
+
   @Activate
-  private void activate(BundleContext bundleContext) {
+  private void activate(BundleContext context) {
+    this.bundleContext = context;
     this.resourcePathResolver = new ResourcePathResolver(pathPreprocessor);
-    this.serviceTrackerCache = buildServiceTrackerCache(bundleContext);
+    this.serviceTrackerCache = buildServiceTrackerCache(context);
   }
 
   @Deactivate
@@ -118,15 +120,16 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
 
   @Override
   public <S extends ContextAwareService> @NotNull ContextAwareServiceCollectionResolver<S, Void> getCollectionResolver(
-      @NotNull Collection<ComponentServiceObjects<S>> serviceObjectsCollection) {
-    return getCollectionResolver(serviceObjectsCollection, item -> null);
+      @NotNull Collection<ServiceReference<S>> serviceReferenceCollection) {
+    return getCollectionResolver(serviceReferenceCollection, (ref, service) -> null);
   }
 
   @Override
   public <S extends ContextAwareService, D> @NotNull ContextAwareServiceCollectionResolver<S, D> getCollectionResolver(
-      @NotNull Collection<ComponentServiceObjects<S>> serviceObjectsCollection,
-      Function<ComponentServiceObjects<S>, D> decorator) {
-    return new ContextAwareServiceCollectionResolverImpl<>(serviceObjectsCollection, decorator, resourcePathResolver);
+      @NotNull Collection<ServiceReference<S>> serviceReferenceCollection,
+      @NotNull BiFunction<ServiceReference<S>, S, D> decorator) {
+    return new ContextAwareServiceCollectionResolverImpl<>(serviceReferenceCollection, decorator,
+        resourcePathResolver, bundleContext);
   }
 
   private <S extends ContextAwareService> Stream<ServiceInfo<S>> getMatchingServiceInfos(

@@ -20,7 +20,7 @@
 package io.wcm.sling.commons.caservice;
 
 import java.util.Collection;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -29,7 +29,7 @@ import org.apache.sling.api.resource.Resource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.annotation.versioning.ProviderType;
-import org.osgi.service.component.ComponentServiceObjects;
+import org.osgi.framework.ServiceReference;
 
 /**
  * Resolves the best-matching context-aware service implementation.
@@ -66,31 +66,31 @@ public interface ContextAwareServiceResolver {
   <S extends ContextAwareService> @NotNull ResolveAllResult<S> resolveAll(@NotNull Class<S> serviceClass, @Nullable Adaptable adaptable);
 
   /**
-   * Gets a {@link ContextAwareServiceCollectionResolver} which operates on a given collection of service objects
+   * Gets a {@link ContextAwareServiceCollectionResolver} which operates on a given collection of service references
    * of the required service. This collection is usually managed by OSGi Declarative Services and expected
-   * to contain all services with the service interface order by service ranking (high to low).
+   * to contain all services with the service interface ordered by service ranking (high to low).
    * The collection resolver helps to get service(s) matching the resource context out of this list.
    * @param <S> Service interface or class
-   * @param serviceObjectsCollection Collection of service objects
+   * @param serviceReferenceCollection Collection of service references
    * @return Collection resolver
    */
   <S extends ContextAwareService> @NotNull ContextAwareServiceCollectionResolver<S, Void> getCollectionResolver(
-      @NotNull Collection<ComponentServiceObjects<S>> serviceObjectsCollection);
+      @NotNull Collection<ServiceReference<S>> serviceReferenceCollection);
 
   /**
-   * Gets a {@link ContextAwareServiceCollectionResolver} which operates on a given collection of service objects
+   * Gets a {@link ContextAwareServiceCollectionResolver} which operates on a given collection of service references
    * of the required service. This collection is usually managed by OSGi Declarative Services and expected
-   * to contain all services with the service interface order by service ranking (high to low).
+   * to contain all services with the service interface ordered by service ranking (high to low).
    * The collection resolver helps to get service(s) matching the resource context out of this list.
    * @param <S> Service interface or class
    * @param <D> Decorator class that is calculated once for each item of the service objects collection.
-   * @param serviceObjectsCollection Collection of service objects
+   * @param serviceReferenceCollection Collection of service reference
    * @param decorator Creates decoration for each collection item once.
    * @return Collection resolver
    */
   <S extends ContextAwareService, D> @NotNull ContextAwareServiceCollectionResolver<S, D> getCollectionResolver(
-      @NotNull Collection<ComponentServiceObjects<S>> serviceObjectsCollection,
-      Function<ComponentServiceObjects<S>, D> decorator);
+      @NotNull Collection<ServiceReference<S>> serviceReferenceCollection,
+      @NotNull BiFunction<ServiceReference<S>, S, D> decorator);
 
   /**
    * Result of the {@link ContextAwareServiceResolver#resolveAll(Class, Adaptable)} method.

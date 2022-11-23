@@ -20,14 +20,20 @@
 package io.wcm.sling.commons.caservice.impl;
 
 import java.util.Collection;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 import org.apache.sling.api.adapter.Adaptable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.osgi.service.component.ComponentServiceObjects;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalNotification;
 
 import io.wcm.sling.commons.caservice.ContextAwareService;
 import io.wcm.sling.commons.caservice.ContextAwareServiceCollectionResolver;
@@ -35,82 +41,71 @@ import io.wcm.sling.commons.caservice.ContextAwareServiceCollectionResolver;
 class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D>
     implements ContextAwareServiceCollectionResolver<S, D> {
 
-  private final Collection<ServiceWrapper<S, D>> services;
+  private final Collection<ServiceReference<S>> serviceReferenceCollection;
   private final ResourcePathResolver resourcePathResolver;
 
-  ContextAwareServiceCollectionResolverImpl(@NotNull Collection<ComponentServiceObjects<S>> serviceObjectsCollection,
-      Function<ComponentServiceObjects<S>, D> decorator, @NotNull ResourcePathResolver resourcePathResolver) {
-    this.services = serviceObjectsCollection.stream()
-        .map(serviceObjects -> new ServiceWrapper<>(serviceObjects, decorator))
-        .filter(ServiceWrapper::isValid)
-        .collect(Collectors.toList());
+  // cache of service trackers for each SPI interface
+  private final LoadingCache<ServiceReference<S>, CollectionItemDecoration<S, D>> decorationCache;
+
+  ContextAwareServiceCollectionResolverImpl(@NotNull Collection<ServiceReference<S>> serviceReferenceCollection,
+      @NotNull BiFunction<ServiceReference<S>, S, D> decorator, @NotNull ResourcePathResolver resourcePathResolver,
+      @NotNull BundleContext bundleContext) {
+    this.serviceReferenceCollection = serviceReferenceCollection;
     this.resourcePathResolver = resourcePathResolver;
+    this.decorationCache = buildCache(decorator, bundleContext);
+  }
+
+  private static <S extends ContextAwareService, D> LoadingCache<ServiceReference<S>, CollectionItemDecoration<S, D>> buildCache(
+      @NotNull BiFunction<ServiceReference<S>, S, D> decorator, @NotNull BundleContext bundleContext) {
+    return CacheBuilder.newBuilder()
+        // expire cache of no longer accessed services after some time TODO: increase duration e.g. to 1 hour
+        .expireAfterAccess(1, TimeUnit.MINUTES)
+        // unget service on removal
+        .removalListener((RemovalNotification<ServiceReference<S>,
+            CollectionItemDecoration<S, D>> notification) -> bundleContext.ungetService(notification.getKey()))
+        // build cache lazily
+        .build(new CacheLoader<ServiceReference<S>, CollectionItemDecoration<S, D>>() {
+          @Override
+          public CollectionItemDecoration<S, D> load(ServiceReference<S> serviceReference) {
+            return new CollectionItemDecoration<>(serviceReference, decorator, bundleContext);
+          }
+        });
   }
 
   @Override
   @SuppressWarnings("null")
   public @Nullable S resolve(@Nullable Adaptable adaptable) {
     return getMatching(adaptable)
-        .map(ServiceWrapper::getService)
+        .map(CollectionItemDecoration::getService)
         .findFirst().orElse(null);
   }
 
   @Override
-  @SuppressWarnings("null")
   public @NotNull Stream<S> resolveAll(@Nullable Adaptable adaptable) {
     return getMatching(adaptable)
-        .map(ServiceWrapper::getService);
+        .map(CollectionItemDecoration::getService);
   }
 
   @Override
   @SuppressWarnings("null")
   public @Nullable D resolveDecorated(@Nullable Adaptable adaptable) {
     return getMatching(adaptable)
-        .map(ServiceWrapper::getDecoration)
+        .map(CollectionItemDecoration::getDecoration)
         .findFirst().orElse(null);
   }
 
   @Override
-  @SuppressWarnings("null")
   public @NotNull Stream<D> resolveAllDecorated(@Nullable Adaptable adaptable) {
     return getMatching(adaptable)
-        .map(ServiceWrapper::getDecoration);
+        .map(CollectionItemDecoration::getDecoration);
   }
 
-  private Stream<ServiceWrapper<S, D>> getMatching(@Nullable Adaptable adaptable) {
+  private Stream<CollectionItemDecoration<S, D>> getMatching(@Nullable Adaptable adaptable) {
     String resourcePath = resourcePathResolver.get(adaptable);
-    return services.stream()
-        .filter(wrapper -> wrapper.matches(resourcePath));
-  }
-
-  private static class ServiceWrapper<S extends ContextAwareService, D> {
-
-    private final S service;
-    private final D decoration;
-    private final ServiceInfo<S> serviceInfo;
-
-    ServiceWrapper(ComponentServiceObjects<S> serviceObjects, Function<ComponentServiceObjects<S>, D> decorator) {
-      this.service = serviceObjects.getService();
-      this.decoration = decorator.apply(serviceObjects);
-      this.serviceInfo = new ServiceInfo<>(serviceObjects.getServiceReference(), this.service);
-    }
-
-    boolean isValid() {
-      return this.serviceInfo.isValid();
-    }
-
-    boolean matches(@Nullable String resourcePath) {
-      return this.serviceInfo.matches(resourcePath);
-    }
-
-    S getService() {
-      return this.service;
-    }
-
-    D getDecoration() {
-      return this.decoration;
-    }
-
+    return serviceReferenceCollection.stream()
+        .map(decorationCache::getUnchecked)
+        .filter(CollectionItemDecoration::isValid)
+        .filter(item -> item.matches(resourcePath));
   }
 
 }
