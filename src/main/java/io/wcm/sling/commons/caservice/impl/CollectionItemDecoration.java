@@ -66,11 +66,10 @@ class CollectionItemDecoration<S extends ContextAwareService, D> {
   }
 
   @Override
-  @SuppressWarnings("null")
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("interface", service != null ? service.getClass().getName() : null)
-        .append("instance", service)
+        .append("service", service)
+        .append("serviceInfo", serviceInfo)
         .append("decoration", decoration)
         .toString();
   }

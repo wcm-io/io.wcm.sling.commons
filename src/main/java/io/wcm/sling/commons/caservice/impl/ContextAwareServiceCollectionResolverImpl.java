@@ -29,6 +29,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -47,6 +49,8 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
   // cache of service trackers for each SPI interface
   private final LoadingCache<ServiceReference<S>, CollectionItemDecoration<S, D>> decorationCache;
 
+  private static final Logger log = LoggerFactory.getLogger(ContextAwareServiceCollectionResolverImpl.class);
+
   ContextAwareServiceCollectionResolverImpl(@NotNull Collection<ServiceReference<S>> serviceReferenceCollection,
       @NotNull BiFunction<ServiceReference<S>, S, D> decorator, @NotNull ResourcePathResolver resourcePathResolver,
       @NotNull BundleContext bundleContext) {
@@ -61,13 +65,17 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
         // expire cached entry after 24h
         .expireAfterAccess(24, TimeUnit.HOURS)
         // unget service on removal
-        .removalListener((RemovalNotification<ServiceReference<S>,
-            CollectionItemDecoration<S, D>> notification) -> bundleContext.ungetService(notification.getKey()))
+        .removalListener((RemovalNotification<ServiceReference<S>, CollectionItemDecoration<S, D>> notification) -> {
+          log.debug("Remove service {}", notification.getValue());
+          bundleContext.ungetService(notification.getKey());
+        })
         // build cache lazily
         .build(new CacheLoader<ServiceReference<S>, CollectionItemDecoration<S, D>>() {
           @Override
           public CollectionItemDecoration<S, D> load(ServiceReference<S> serviceReference) {
-            return new CollectionItemDecoration<>(serviceReference, decorator, bundleContext);
+            CollectionItemDecoration<S, D> item = new CollectionItemDecoration<>(serviceReference, decorator, bundleContext);
+            log.debug("Add service {}", item);
+            return item;
           }
         });
   }
