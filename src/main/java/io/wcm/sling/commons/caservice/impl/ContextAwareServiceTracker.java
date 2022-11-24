@@ -60,7 +60,7 @@ class ContextAwareServiceTracker<S extends ContextAwareService> implements Servi
   @Override
   public ServiceInfo addingService(ServiceReference<S> reference) {
     ServiceInfo<S> serviceInfo = new ServiceInfo<>(reference, bundleContext);
-    logServiceDebugMessage("Add service {}", serviceInfo);
+    logServiceDebugMessage("Add service {}: {}", serviceInfo);
     if (rankedServices != null) {
       rankedServices.bind(serviceInfo, serviceInfo.getServiceProperties());
     }
@@ -75,7 +75,7 @@ class ContextAwareServiceTracker<S extends ContextAwareService> implements Servi
 
   @Override
   public void removedService(ServiceReference<S> reference, ServiceInfo<S> serviceInfo) {
-    logServiceDebugMessage("Remove service {}", serviceInfo);
+    logServiceDebugMessage("Remove service {}: {}", serviceInfo);
     if (rankedServices != null) {
       rankedServices.unbind(serviceInfo, serviceInfo.getServiceProperties());
     }
@@ -103,13 +103,13 @@ class ContextAwareServiceTracker<S extends ContextAwareService> implements Servi
     return rankedServices;
   }
 
-  private void logServiceDebugMessage(String message, ServiceInfo<S> serviceInfo) {
+  private static void logServiceDebugMessage(String message, ServiceInfo<?> serviceInfo) {
     if (!log.isDebugEnabled()) {
       return;
     }
     Object service = serviceInfo.getService();
     if (service != null) {
-      log.debug(message, service.getClass().getName());
+      log.debug(message, service.getClass().getName(), serviceInfo);
     }
   }
 
