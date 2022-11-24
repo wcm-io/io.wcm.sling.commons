@@ -21,6 +21,8 @@ package io.wcm.sling.commons.caservice.impl;
 
 import java.util.function.BiFunction;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -61,6 +63,16 @@ class CollectionItemDecoration<S extends ContextAwareService, D> {
 
   D getDecoration() {
     return this.decoration;
+  }
+
+  @Override
+  @SuppressWarnings("null")
+  public String toString() {
+    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+        .append("interface", service != null ? service.getClass().getName() : null)
+        .append("instance", service)
+        .append("decoration", decoration)
+        .toString();
   }
 
 }

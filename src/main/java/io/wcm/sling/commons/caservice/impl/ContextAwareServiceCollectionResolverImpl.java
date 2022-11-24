@@ -58,8 +58,8 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
   private static <S extends ContextAwareService, D> LoadingCache<ServiceReference<S>, CollectionItemDecoration<S, D>> buildCache(
       @NotNull BiFunction<ServiceReference<S>, S, D> decorator, @NotNull BundleContext bundleContext) {
     return CacheBuilder.newBuilder()
-        // expire cache of no longer accessed services after some time TODO: increase duration e.g. to 1 hour
-        .expireAfterAccess(1, TimeUnit.MINUTES)
+        // expire cached entry after 24h
+        .expireAfterAccess(24, TimeUnit.HOURS)
         // unget service on removal
         .removalListener((RemovalNotification<ServiceReference<S>,
             CollectionItemDecoration<S, D>> notification) -> bundleContext.ungetService(notification.getKey()))
