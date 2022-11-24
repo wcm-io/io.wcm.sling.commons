@@ -90,7 +90,7 @@ public interface ContextAwareServiceResolver {
    */
   <S extends ContextAwareService, D> @NotNull ContextAwareServiceCollectionResolver<S, D> getCollectionResolver(
       @NotNull Collection<ServiceReference<S>> serviceReferenceCollection,
-      @NotNull BiFunction<ServiceReference<S>, S, D> decorator);
+      @NotNull BiFunction<@NotNull ServiceReference<S>, @Nullable S, @Nullable D> decorator);
 
   /**
    * Result of the {@link ContextAwareServiceResolver#resolveAll(Class, Adaptable)} method.

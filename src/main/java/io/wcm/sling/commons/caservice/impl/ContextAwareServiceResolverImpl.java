@@ -48,6 +48,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.wcm.sling.commons.caservice.ContextAwareService;
 import io.wcm.sling.commons.caservice.ContextAwareServiceCollectionResolver;
 import io.wcm.sling.commons.caservice.ContextAwareServiceResolver;
@@ -125,9 +126,10 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
   }
 
   @Override
+  @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION")
   public <S extends ContextAwareService, D> @NotNull ContextAwareServiceCollectionResolver<S, D> getCollectionResolver(
       @NotNull Collection<ServiceReference<S>> serviceReferenceCollection,
-      @NotNull BiFunction<ServiceReference<S>, S, D> decorator) {
+      @NotNull BiFunction<@NotNull ServiceReference<S>, @Nullable S, @Nullable D> decorator) {
     return new ContextAwareServiceCollectionResolverImpl<>(serviceReferenceCollection, decorator,
         resourcePathResolver, bundleContext);
   }

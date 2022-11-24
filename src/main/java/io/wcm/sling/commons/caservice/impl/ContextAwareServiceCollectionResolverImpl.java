@@ -52,7 +52,8 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
   private static final Logger log = LoggerFactory.getLogger(ContextAwareServiceCollectionResolverImpl.class);
 
   ContextAwareServiceCollectionResolverImpl(@NotNull Collection<ServiceReference<S>> serviceReferenceCollection,
-      @NotNull BiFunction<ServiceReference<S>, S, D> decorator, @NotNull ResourcePathResolver resourcePathResolver,
+      @NotNull BiFunction<@NotNull ServiceReference<S>, @Nullable S, @Nullable D> decorator,
+      @NotNull ResourcePathResolver resourcePathResolver,
       @NotNull BundleContext bundleContext) {
     this.serviceReferenceCollection = serviceReferenceCollection;
     this.resourcePathResolver = resourcePathResolver;
@@ -60,7 +61,7 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
   }
 
   private static <S extends ContextAwareService, D> LoadingCache<ServiceReference<S>, CollectionItemDecoration<S, D>> buildCache(
-      @NotNull BiFunction<ServiceReference<S>, S, D> decorator, @NotNull BundleContext bundleContext) {
+      @NotNull BiFunction<@NotNull ServiceReference<S>, @Nullable S, @Nullable D> decorator, @NotNull BundleContext bundleContext) {
     return CacheBuilder.newBuilder()
         // expire cached entry after 24h
         .expireAfterAccess(24, TimeUnit.HOURS)
@@ -81,7 +82,6 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
   }
 
   @Override
-  @SuppressWarnings("null")
   public @Nullable S resolve(@Nullable Adaptable adaptable) {
     return getMatching(adaptable)
         .map(CollectionItemDecoration::getService)
@@ -89,13 +89,13 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
   }
 
   @Override
+  @SuppressWarnings("null")
   public @NotNull Stream<S> resolveAll(@Nullable Adaptable adaptable) {
     return getMatching(adaptable)
         .map(CollectionItemDecoration::getService);
   }
 
   @Override
-  @SuppressWarnings("null")
   public @Nullable D resolveDecorated(@Nullable Adaptable adaptable) {
     return getMatching(adaptable)
         .map(CollectionItemDecoration::getDecoration)
@@ -103,12 +103,13 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
   }
 
   @Override
+  @SuppressWarnings("null")
   public @NotNull Stream<D> resolveAllDecorated(@Nullable Adaptable adaptable) {
     return getMatching(adaptable)
         .map(CollectionItemDecoration::getDecoration);
   }
 
-  private Stream<CollectionItemDecoration<S, D>> getMatching(@Nullable Adaptable adaptable) {
+  private @NotNull Stream<CollectionItemDecoration<S, D>> getMatching(@Nullable Adaptable adaptable) {
     String resourcePath = resourcePathResolver.get(adaptable);
     return serviceReferenceCollection.stream()
         .map(decorationCache::getUnchecked)

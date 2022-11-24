@@ -23,10 +23,12 @@ import java.util.function.BiFunction;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.wcm.sling.commons.caservice.ContextAwareService;
 
 /**
@@ -38,12 +40,14 @@ import io.wcm.sling.commons.caservice.ContextAwareService;
  */
 class CollectionItemDecoration<S extends ContextAwareService, D> {
 
-  private final S service;
-  private final D decoration;
+  private final @Nullable S service;
+  private final @Nullable D decoration;
   private final ServiceInfo<S> serviceInfo;
 
-  CollectionItemDecoration(ServiceReference<S> serviceReference,
-      BiFunction<ServiceReference<S>, S, D> decorator, BundleContext bundleContext) {
+  @SuppressFBWarnings("NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE")
+  CollectionItemDecoration(@NotNull ServiceReference<S> serviceReference,
+      @NotNull BiFunction<@NotNull ServiceReference<S>, @Nullable S, @Nullable D> decorator,
+      @NotNull BundleContext bundleContext) {
     this.service = bundleContext.getService(serviceReference);
     this.decoration = decorator.apply(serviceReference, this.service);
     this.serviceInfo = new ServiceInfo<>(serviceReference, this.service);
@@ -57,10 +61,12 @@ class CollectionItemDecoration<S extends ContextAwareService, D> {
     return this.serviceInfo.matches(resourcePath);
   }
 
+  @Nullable
   S getService() {
     return this.service;
   }
 
+  @Nullable
   D getDecoration() {
     return this.decoration;
   }
