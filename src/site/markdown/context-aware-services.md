@@ -29,6 +29,58 @@ The available service property name/bundle header names are defined in [`io.wcm.
 
 ### Usage example
 
+#### Ad-Hoc get a single service
+
+Use case: Get a context-aware services in a Sling Model
+
+Get a reference to the `ContextAwareServiceResolver`:
+
+```java
+  @OSGiService
+  private ContextAwareServiceResolver serviceResolver;
+```
+
+Get matching service for current resource context:
+
+```java
+  MyService service = serviceResolver.resolve(MyService.class, currentResource);
+```
+#### Reference context-aware services in OSGi components
+
+Use case: Reference all implementations of a given service interface and get the matching context-aware ones.
+
+Define references to services via Declarative Services:
+
+```java
+  @Reference(cardinality = ReferenceCardinality.MULTIPLE, fieldOption = FieldOption.UPDATE,
+      policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
+  private Collection<ServiceReference<MyService>> services;
+```
+
+Setup `ContextAwareServiceCollectionResolver` which get's a view filtered by resource context of these services:
+
+```java
+  @Reference
+  private ContextAwareServiceResolver serviceResolver;
+  private ContextAwareServiceCollectionResolver<ConfigurationCategoryProvider, Void> serviceCollectionResolver;
+
+  @Activate
+  private void activate() {
+    this.serviceCollectionResolver = serviceResolver.getCollectionResolver(this.services);
+  }
+```
+
+There is a second method signature available of `getCollectionResolver` which allows to generate a decoration for each detected service e.g. based on further service reference properties.
+
+Getting all services matching current resource context:
+
+```java
+  Collection<MyService> services = serviceCollectionResolver.resolveAll(currentResource)
+      .collect(Collectors.toList());
+```
+
+#### Further examples
+
 [wcm.io Handler][wcmio-handler] makes use of Context-Aware Services for it's SPI.
 
 The [wcm.io Sample Application][wcmio-samples] uses the Handler infrastructure and implements some SPI implementations with setting the path context in the bundle headers.
