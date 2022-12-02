@@ -68,6 +68,11 @@ Setup `ContextAwareServiceCollectionResolver` which get's a view filtered by res
   private void activate() {
     this.serviceCollectionResolver = serviceResolver.getCollectionResolver(this.services);
   }
+
+  @Deactivate
+  private void deactivate() {
+    this.serviceCollectionResolver.close();
+  }
 ```
 
 There is a second method signature available of `getCollectionResolver` which allows to generate a decoration for each detected service e.g. based on further service reference properties.
