@@ -117,4 +117,9 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
         .filter(item -> item.matches(resourcePath));
   }
 
+  @Override
+  public void close() {
+    this.decorationCache.invalidateAll();
+  }
+
 }

@@ -37,7 +37,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @param <D> Decorator class that is calculated once for each item of the service objects collection.
  */
 @ProviderType
-public interface ContextAwareServiceCollectionResolver<S extends ContextAwareService, D> {
+public interface ContextAwareServiceCollectionResolver<S extends ContextAwareService, D> extends AutoCloseable {
 
   /**
    * Resolves the best-matching service implementation for the given resource context.
@@ -90,5 +90,13 @@ public interface ContextAwareServiceCollectionResolver<S extends ContextAwareSer
    */
   @NotNull
   Stream<D> resolveAllDecorated(@Nullable Adaptable adaptable);
+
+  /**
+   * It is recommended to close the collection resolver instance when the using OSGi component is deactivated.
+   * Internally, the implementation uses a cache to keep used service reference. Calling the close methods will
+   * invalidate this cache an unget all service references.
+   */
+  @Override
+  void close();
 
 }
