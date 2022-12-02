@@ -66,85 +66,90 @@ class ContextAwareServiceCollectionResolverImplTest {
   @Test
   void testWithDefaultImpl() {
     DummySpi defaultImpl = testServices.addDefaultService();
-    ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
-        .getCollectionResolver(testServices.getServices());
+    try (ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
+        .getCollectionResolver(testServices.getServices())) {
 
-    assertSame(contentImpl, underTest.resolve(context.create().resource("/content/test1")));
-    assertSame(contentSampleImpl, underTest.resolve(context.create().resource("/content/sample/test1")));
-    assertSame(contentImpl, underTest.resolve(context.create().resource("/content/sample/exclude/test1")));
-    assertSame(contentDamImpl, underTest.resolve(context.create().resource("/content/dam/test1")));
-    assertSame(defaultImpl, underTest.resolve(context.create().resource("/etc/test1")));
+      assertSame(contentImpl, underTest.resolve(context.create().resource("/content/test1")));
+      assertSame(contentSampleImpl, underTest.resolve(context.create().resource("/content/sample/test1")));
+      assertSame(contentImpl, underTest.resolve(context.create().resource("/content/sample/exclude/test1")));
+      assertSame(contentDamImpl, underTest.resolve(context.create().resource("/content/dam/test1")));
+      assertSame(defaultImpl, underTest.resolve(context.create().resource("/etc/test1")));
 
-    assertEquals(ImmutableList.of(contentDamImpl, contentImpl, defaultImpl),
-        underTest.resolveAll(context.create().resource("/content/dam/test2")).collect(Collectors.toList()));
+      assertEquals(ImmutableList.of(contentDamImpl, contentImpl, defaultImpl),
+          underTest.resolveAll(context.create().resource("/content/dam/test2")).collect(Collectors.toList()));
+    }
   }
 
   @Test
   @SuppressWarnings("null")
   void testWithDefaultImpl_Decorated() {
     DummySpi defaultImpl = testServices.addDefaultService();
-    ContextAwareServiceCollectionResolver<DummySpi, DummySpiDecorator> underTest = contextAwareServiceResolver
-        .getCollectionResolver(testServices.getServices(), (ref, service) -> new DummySpiDecorator(service));
+    try (ContextAwareServiceCollectionResolver<DummySpi, DummySpiDecorator> underTest = contextAwareServiceResolver
+        .getCollectionResolver(testServices.getServices(), (ref, service) -> new DummySpiDecorator(service))) {
 
-    assertSame(contentImpl, underTest.resolveDecorated(context.create().resource("/content/test1")).getService());
-    assertSame(contentSampleImpl, underTest.resolveDecorated(context.create().resource("/content/sample/test1")).getService());
-    assertSame(contentImpl, underTest.resolveDecorated(context.create().resource("/content/sample/exclude/test1")).getService());
-    assertSame(contentDamImpl, underTest.resolveDecorated(context.create().resource("/content/dam/test1")).getService());
-    assertSame(defaultImpl, underTest.resolveDecorated(context.create().resource("/etc/test1")).getService());
+      assertSame(contentImpl, underTest.resolveDecorated(context.create().resource("/content/test1")).getService());
+      assertSame(contentSampleImpl, underTest.resolveDecorated(context.create().resource("/content/sample/test1")).getService());
+      assertSame(contentImpl, underTest.resolveDecorated(context.create().resource("/content/sample/exclude/test1")).getService());
+      assertSame(contentDamImpl, underTest.resolveDecorated(context.create().resource("/content/dam/test1")).getService());
+      assertSame(defaultImpl, underTest.resolveDecorated(context.create().resource("/etc/test1")).getService());
 
-    assertEquals(ImmutableList.of(contentDamImpl, contentImpl, defaultImpl),
-        underTest.resolveAllDecorated(context.create().resource("/content/dam/test2"))
-            .map(DummySpiDecorator::getService).collect(Collectors.toList()));
+      assertEquals(ImmutableList.of(contentDamImpl, contentImpl, defaultImpl),
+          underTest.resolveAllDecorated(context.create().resource("/content/dam/test2"))
+              .map(DummySpiDecorator::getService).collect(Collectors.toList()));
+    }
   }
 
   @Test
   void testWithDefaultImpl_DynamicListChange() {
-    ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
-        .getCollectionResolver(testServices.getServices());
+    try (ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
+        .getCollectionResolver(testServices.getServices())) {
 
-    assertSame(contentImpl, underTest.resolve(context.create().resource("/content/test1")));
-    assertSame(contentSampleImpl, underTest.resolve(context.create().resource("/content/sample/test1")));
-    assertSame(contentImpl, underTest.resolve(context.create().resource("/content/sample/exclude/test1")));
-    assertSame(contentDamImpl, underTest.resolve(context.create().resource("/content/dam/test1")));
-    assertNull(underTest.resolve(context.create().resource("/etc/test1")));
-    assertEquals(ImmutableList.of(contentDamImpl, contentImpl),
-        underTest.resolveAll(context.create().resource("/content/dam/test2")).collect(Collectors.toList()));
+      assertSame(contentImpl, underTest.resolve(context.create().resource("/content/test1")));
+      assertSame(contentSampleImpl, underTest.resolve(context.create().resource("/content/sample/test1")));
+      assertSame(contentImpl, underTest.resolve(context.create().resource("/content/sample/exclude/test1")));
+      assertSame(contentDamImpl, underTest.resolve(context.create().resource("/content/dam/test1")));
+      assertNull(underTest.resolve(context.create().resource("/etc/test1")));
+      assertEquals(ImmutableList.of(contentDamImpl, contentImpl),
+          underTest.resolveAll(context.create().resource("/content/dam/test2")).collect(Collectors.toList()));
 
-    DummySpi defaultImpl = testServices.addDefaultService();
-    assertSame(defaultImpl, underTest.resolve(context.create().resource("/etc/test2")));
+      DummySpi defaultImpl = testServices.addDefaultService();
+      assertSame(defaultImpl, underTest.resolve(context.create().resource("/etc/test2")));
 
-    assertEquals(ImmutableList.of(contentDamImpl, contentImpl, defaultImpl),
-        underTest.resolveAll(context.create().resource("/content/dam/test3")).collect(Collectors.toList()));
+      assertEquals(ImmutableList.of(contentDamImpl, contentImpl, defaultImpl),
+          underTest.resolveAll(context.create().resource("/content/dam/test3")).collect(Collectors.toList()));
+    }
   }
 
   @Test
   void testWithoutDefaultImpl() {
-    ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
-        .getCollectionResolver(testServices.getServices());
+    try (ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
+        .getCollectionResolver(testServices.getServices())) {
 
-    assertSame(contentImpl, underTest.resolve(context.create().resource("/content/test1")));
-    assertSame(contentSampleImpl, underTest.resolve(context.create().resource("/content/sample/test1")));
-    assertSame(contentImpl, underTest.resolve(context.create().resource("/content/sample/exclude/test1")));
-    assertSame(contentDamImpl, underTest.resolve(context.create().resource("/content/dam/test1")));
-    assertNull(underTest.resolve(context.create().resource("/etc/test1")));
+      assertSame(contentImpl, underTest.resolve(context.create().resource("/content/test1")));
+      assertSame(contentSampleImpl, underTest.resolve(context.create().resource("/content/sample/test1")));
+      assertSame(contentImpl, underTest.resolve(context.create().resource("/content/sample/exclude/test1")));
+      assertSame(contentDamImpl, underTest.resolve(context.create().resource("/content/dam/test1")));
+      assertNull(underTest.resolve(context.create().resource("/etc/test1")));
 
-    assertEquals(ImmutableList.of(contentDamImpl, contentImpl),
-        underTest.resolveAll(context.create().resource("/content/dam/test2")).collect(Collectors.toList()));
-    assertEquals(ImmutableList.of(contentSampleImpl, contentImpl),
-        underTest.resolveAll(context.create().resource("/content/sample/test2")).collect(Collectors.toList()));
+      assertEquals(ImmutableList.of(contentDamImpl, contentImpl),
+          underTest.resolveAll(context.create().resource("/content/dam/test2")).collect(Collectors.toList()));
+      assertEquals(ImmutableList.of(contentSampleImpl, contentImpl),
+          underTest.resolveAll(context.create().resource("/content/sample/test2")).collect(Collectors.toList()));
+    }
   }
 
   @Test
   void testWithSlingHttpServletRequest() {
     DummySpi defaultImpl = testServices.addDefaultService();
-    ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
-        .getCollectionResolver(testServices.getServices());
+    try (ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
+        .getCollectionResolver(testServices.getServices())) {
 
-    context.currentResource(context.create().resource("/content/sample/test1"));
-    assertSame(contentSampleImpl, underTest.resolve(context.request()));
+      context.currentResource(context.create().resource("/content/sample/test1"));
+      assertSame(contentSampleImpl, underTest.resolve(context.request()));
 
-    assertEquals(ImmutableList.of(contentSampleImpl, contentImpl, defaultImpl),
-        underTest.resolveAll(context.request()).collect(Collectors.toList()));
+      assertEquals(ImmutableList.of(contentSampleImpl, contentImpl, defaultImpl),
+          underTest.resolveAll(context.request()).collect(Collectors.toList()));
+    }
   }
 
   /**
@@ -154,60 +159,64 @@ class ContextAwareServiceCollectionResolverImplTest {
   @Test
   void testWithSlingHttpServletRequest_ResourceOtherContext() {
     DummySpi defaultImpl = testServices.addDefaultService();
-    ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
-        .getCollectionResolver(testServices.getServices());
+    try (ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
+        .getCollectionResolver(testServices.getServices())) {
 
-    context.currentPage(context.create().page("/content/sample/test1"));
-    context.currentResource(context.create().resource("/content/experience-fragments/test1"));
-    assertSame(contentSampleImpl, underTest.resolve(context.request()));
+      context.currentPage(context.create().page("/content/sample/test1"));
+      context.currentResource(context.create().resource("/content/experience-fragments/test1"));
+      assertSame(contentSampleImpl, underTest.resolve(context.request()));
 
-    assertEquals(ImmutableList.of(contentSampleImpl, contentImpl, defaultImpl),
-        underTest.resolveAll(context.request()).collect(Collectors.toList()));
+      assertEquals(ImmutableList.of(contentSampleImpl, contentImpl, defaultImpl),
+          underTest.resolveAll(context.request()).collect(Collectors.toList()));
+    }
   }
 
   @Test
   void testWithNull() {
     DummySpi defaultImpl = testServices.addDefaultService();
 
-    ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
-        .getCollectionResolver(testServices.getServices());
+    try (ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
+        .getCollectionResolver(testServices.getServices())) {
 
-    assertSame(defaultImpl, underTest.resolve(null));
+      assertSame(defaultImpl, underTest.resolve(null));
 
-    assertEquals(ImmutableList.of(defaultImpl), underTest.resolveAll(null).collect(Collectors.toList()));
+      assertEquals(ImmutableList.of(defaultImpl), underTest.resolveAll(null).collect(Collectors.toList()));
+    }
   }
 
   @Test
   void testWithBundleHeader() {
     DummySpi contentDamImplWithBundleHeader = testServices.addContentDamImplWithBundleHeader();
-    ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
-        .getCollectionResolver(testServices.getServices());
+    try (ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
+        .getCollectionResolver(testServices.getServices())) {
 
-    assertSame(contentImpl, underTest.resolve(context.create().resource("/content/test1")));
-    assertSame(contentSampleImpl, underTest.resolve(context.create().resource("/content/sample/test1")));
-    assertSame(contentImpl, underTest.resolve(context.create().resource("/content/sample/exclude/test1")));
-    assertSame(contentDamImplWithBundleHeader, underTest.resolve(context.create().resource("/content/dam/test1")));
-    assertNull(underTest.resolve(context.create().resource("/etc/test1")));
+      assertSame(contentImpl, underTest.resolve(context.create().resource("/content/test1")));
+      assertSame(contentSampleImpl, underTest.resolve(context.create().resource("/content/sample/test1")));
+      assertSame(contentImpl, underTest.resolve(context.create().resource("/content/sample/exclude/test1")));
+      assertSame(contentDamImplWithBundleHeader, underTest.resolve(context.create().resource("/content/dam/test1")));
+      assertNull(underTest.resolve(context.create().resource("/etc/test1")));
 
-    assertEquals(ImmutableList.of(contentDamImplWithBundleHeader, contentDamImpl, contentImpl),
-        underTest.resolveAll(context.create().resource("/content/dam/test2")).collect(Collectors.toList()));
+      assertEquals(ImmutableList.of(contentDamImplWithBundleHeader, contentDamImpl, contentImpl),
+          underTest.resolveAll(context.create().resource("/content/dam/test2")).collect(Collectors.toList()));
+    }
   }
 
   @Test
   void testWithPathPreProcessor() {
     context.registerService(PathPreprocessor.class, (path, resourceResolver) -> StringUtils.removeStart(path, "/pathprefix"));
     contextAwareServiceResolver = context.registerInjectActivateService(new ContextAwareServiceResolverImpl());
-    ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
-        .getCollectionResolver(testServices.getServices());
+    try (ContextAwareServiceCollectionResolver<DummySpi, Void> underTest = contextAwareServiceResolver
+        .getCollectionResolver(testServices.getServices())) {
 
-    assertSame(contentImpl, underTest.resolve(context.create().resource("/pathprefix/content/test1")));
-    assertSame(contentSampleImpl, underTest.resolve(context.create().resource("/pathprefix/content/sample/test1")));
-    assertSame(contentImpl, underTest.resolve(context.create().resource("/pathprefix/content/sample/exclude/test1")));
-    assertSame(contentDamImpl, underTest.resolve(context.create().resource("/pathprefix/content/dam/test1")));
-    assertNull(underTest.resolve(context.create().resource("/pathprefix/etc/test1")));
+      assertSame(contentImpl, underTest.resolve(context.create().resource("/pathprefix/content/test1")));
+      assertSame(contentSampleImpl, underTest.resolve(context.create().resource("/pathprefix/content/sample/test1")));
+      assertSame(contentImpl, underTest.resolve(context.create().resource("/pathprefix/content/sample/exclude/test1")));
+      assertSame(contentDamImpl, underTest.resolve(context.create().resource("/pathprefix/content/dam/test1")));
+      assertNull(underTest.resolve(context.create().resource("/pathprefix/etc/test1")));
 
-    assertEquals(ImmutableList.of(contentDamImpl, contentImpl),
-        underTest.resolveAll(context.create().resource("/pathprefix/content/dam/test2")).collect(Collectors.toList()));
+      assertEquals(ImmutableList.of(contentDamImpl, contentImpl),
+          underTest.resolveAll(context.create().resource("/pathprefix/content/dam/test2")).collect(Collectors.toList()));
+    }
   }
 
 }
