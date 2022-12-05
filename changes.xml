@@ -23,6 +23,12 @@
     xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/plugins/maven-changes-plugin/xsd/changes-1.0.0.xsd">
   <body>
 
+    <release version="1.6.0" date="2022-12-05">
+      <action type="add" dev="sseifert">
+        ContextAwareServiceResolver: Add ContextAwareServiceCollectionResolver that allows context-aware filtering of a pre-propulated service collections (e.g. managed by Declarative Services).
+      </action>
+    </release>
+
     <release version="1.5.0" date="2022-05-11">
       <action type="add" dev="henrykuijpers" issue="WSLI-7">
         Add Escape.jcrQueryLikeString.

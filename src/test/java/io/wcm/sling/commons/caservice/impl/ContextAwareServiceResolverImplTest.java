@@ -27,28 +27,27 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.testing.mock.osgi.MockBundle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.osgi.framework.Constants;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
-import io.wcm.sling.commons.caservice.ContextAwareService;
 import io.wcm.sling.commons.caservice.ContextAwareServiceResolver;
 import io.wcm.sling.commons.caservice.ContextAwareServiceResolver.ResolveAllResult;
 import io.wcm.sling.commons.caservice.PathPreprocessor;
 import io.wcm.testing.mock.aem.junit5.AemContext;
 import io.wcm.testing.mock.aem.junit5.AemContextExtension;
 
+/**
+ * Test resolving context-aware services using service tracker against the {@link TestServices}.
+ */
 @ExtendWith(AemContextExtension.class)
-@SuppressWarnings("null")
 class ContextAwareServiceResolverImplTest {
 
   private final AemContext context = new AemContext();
 
+  private TestServices testServices;
   private DummySpi contentImpl;
   private DummySpi contentDamImpl;
   private DummySpi contentSampleImpl;
@@ -57,34 +56,17 @@ class ContextAwareServiceResolverImplTest {
 
   @BeforeEach
   void setUp() {
-    contentImpl = context.registerService(DummySpi.class, new DummySpiImpl(),
-        ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN, "^/content(/.*)?$",
-        Constants.SERVICE_RANKING, 100);
-    contentDamImpl = context.registerService(DummySpi.class, new DummySpiImpl(),
-        ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN, "^/content/dam(/.*)?$",
-        Constants.SERVICE_RANKING, 200);
-    contentSampleImpl = context.registerService(DummySpi.class, new DummySpiImpl(),
-        ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN, "^/content/sample(/.*)?$",
-        ContextAwareService.PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN, "^/content/sample/exclude(/.*)?$",
-        Constants.SERVICE_RANKING, 300);
-
-    // add some more services with high ranking but invalid properties - they should never be returned
-    context.registerService(DummySpi.class, new DummySpiImpl(),
-        ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN, "(",
-        Constants.SERVICE_RANKING, 10000);
-    context.registerService(DummySpi.class, new DummySpiImpl(),
-        ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN, "^/content(/.*)?$",
-        ContextAwareService.PROPERTY_CONTEXT_PATH_BLACKLIST_PATTERN, ")",
-        Constants.SERVICE_RANKING, 20000);
+    testServices = new TestServices(context);
+    contentImpl = testServices.getContentService();
+    contentDamImpl = testServices.getContentDamService();
+    contentSampleImpl = testServices.getContentSampleService();
 
     underTest = context.registerInjectActivateService(new ContextAwareServiceResolverImpl());
   }
 
   @Test
   void testWithDefaultImpl() {
-    DummySpi defaultImpl = context.registerService(DummySpi.class, new DummySpiImpl(),
-        Constants.SERVICE_RANKING, Integer.MIN_VALUE,
-        ContextAwareService.PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY, true);
+    DummySpi defaultImpl = testServices.addDefaultService();
 
     assertSame(contentImpl, underTest.resolve(DummySpi.class, context.create().resource("/content/test1")));
     assertSame(contentSampleImpl, underTest.resolve(DummySpi.class, context.create().resource("/content/sample/test1")));
@@ -106,13 +88,13 @@ class ContextAwareServiceResolverImplTest {
 
     assertEquals(ImmutableList.of(contentDamImpl, contentImpl),
         underTest.resolveAll(DummySpi.class, context.create().resource("/content/dam/test2")).getServices().collect(Collectors.toList()));
+    assertEquals(ImmutableList.of(contentSampleImpl, contentImpl),
+        underTest.resolveAll(DummySpi.class, context.create().resource("/content/sample/test2")).getServices().collect(Collectors.toList()));
   }
 
   @Test
   void testWithSlingHttpServletRequest() {
-    DummySpi defaultImpl = context.registerService(DummySpi.class, new DummySpiImpl(),
-        Constants.SERVICE_RANKING, Integer.MIN_VALUE,
-        ContextAwareService.PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY, true);
+    DummySpi defaultImpl = testServices.addDefaultService();
 
     context.currentResource(context.create().resource("/content/sample/test1"));
     assertSame(contentSampleImpl, underTest.resolve(DummySpi.class, context.request()));
@@ -127,9 +109,7 @@ class ContextAwareServiceResolverImplTest {
    */
   @Test
   void testWithSlingHttpServletRequest_ResourceOtherContext() {
-    DummySpi defaultImpl = context.registerService(DummySpi.class, new DummySpiImpl(),
-        Constants.SERVICE_RANKING, Integer.MIN_VALUE,
-        ContextAwareService.PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY, true);
+    DummySpi defaultImpl = testServices.addDefaultService();
 
     context.currentPage(context.create().page("/content/sample/test1"));
     context.currentResource(context.create().resource("/content/experience-fragments/test1"));
@@ -141,9 +121,7 @@ class ContextAwareServiceResolverImplTest {
 
   @Test
   void testWithNull() {
-    DummySpi defaultImpl = context.registerService(DummySpi.class, new DummySpiImpl(),
-        Constants.SERVICE_RANKING, Integer.MIN_VALUE,
-        ContextAwareService.PROPERTY_ACCEPTS_CONTEXT_PATH_EMPTY, true);
+    DummySpi defaultImpl = testServices.addDefaultService();
 
     assertSame(defaultImpl, underTest.resolve(DummySpi.class, null));
 
@@ -162,13 +140,7 @@ class ContextAwareServiceResolverImplTest {
 
   @Test
   void testWithBundleHeader() {
-
-    // service gets path pattern from bundle header instead of service property
-    ((MockBundle)context.bundleContext().getBundle()).setHeaders(ImmutableMap.of(
-        ContextAwareService.PROPERTY_CONTEXT_PATH_PATTERN, "^/content/dam(/.*)?$"));
-    DummySpi contentDamImplWithBundleHeader = context.registerService(DummySpi.class, new DummySpiImpl(),
-        Constants.SERVICE_RANKING, 1000);
-
+    DummySpi contentDamImplWithBundleHeader = testServices.addContentDamImplWithBundleHeader();
 
     assertSame(contentImpl, underTest.resolve(DummySpi.class, context.create().resource("/content/test1")));
     assertSame(contentSampleImpl, underTest.resolve(DummySpi.class, context.create().resource("/content/sample/test1")));

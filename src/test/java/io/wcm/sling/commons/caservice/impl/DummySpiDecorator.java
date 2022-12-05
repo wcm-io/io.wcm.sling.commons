@@ -2,7 +2,7 @@
  * #%L
  * wcm.io
  * %%
- * Copyright (C) 2017 wcm.io
+ * Copyright (C) 2022 wcm.io
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,16 @@
  */
 package io.wcm.sling.commons.caservice.impl;
 
-class DummySpiImpl implements DummySpi {
+class DummySpiDecorator {
 
-  private final String info;
+  private final DummySpi service;
 
-  DummySpiImpl(String info) {
-    this.info = info;
+  DummySpiDecorator(DummySpi service) {
+    this.service = service;
   }
 
-  @Override
-  public String toString() {
-    return info;
+  DummySpi getService() {
+    return this.service;
   }
 
 }
