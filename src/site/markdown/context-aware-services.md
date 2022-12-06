@@ -62,7 +62,7 @@ Setup `ContextAwareServiceCollectionResolver` which get's a view filtered by res
 ```java
   @Reference
   private ContextAwareServiceResolver serviceResolver;
-  private ContextAwareServiceCollectionResolver<ConfigurationCategoryProvider, Void> serviceCollectionResolver;
+  private ContextAwareServiceCollectionResolver<MyService, Void> serviceCollectionResolver;
 
   @Activate
   private void activate() {
