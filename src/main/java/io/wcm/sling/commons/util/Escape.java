@@ -30,15 +30,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.annotation.versioning.ProviderType;
 
-import com.google.common.collect.ImmutableSet;
-
 /**
  * Encoding utility functions.
  */
 @ProviderType
 public final class Escape {
   private static final char LIKE_ESCAPE_CHARACTER = '\\';
-  private static final Set<Character> LIKE_SPECIAL_CHARACTERS = ImmutableSet.of('%', '_');
+  private static final Set<Character> LIKE_SPECIAL_CHARACTERS = Set.of('%', '_');
 
   private Escape() {
     // Utility class - no instancing allowed

@@ -32,14 +32,11 @@ import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableMap;
-
 class ImmutableValueMapTest {
 
-  private static final Map<String, Object> SAMPLE_PROPS = ImmutableMap.<String, Object>builder()
-      .put("prop1", "value1")
-      .put("prop2", 55)
-      .build();
+  private static final Map<String, Object> SAMPLE_PROPS = Map.of(
+      "prop1", "value1",
+      "prop2", 55);
 
   private ValueMap underTest;
 
@@ -95,10 +92,9 @@ class ImmutableValueMapTest {
   @Test
   void testMapPutAll() {
     assertThrows(UnsupportedOperationException.class, () -> {
-      underTest.putAll(ImmutableMap.<String, Object>builder()
-          .put("prop4", 25)
-          .put("prop5", 33)
-          .build());
+      underTest.putAll(Map.of(
+          "prop4", 25,
+          "prop5", 33));
     });
   }
 
@@ -157,8 +153,8 @@ class ImmutableValueMapTest {
   void testBuilder() {
     ValueMap map = ImmutableValueMap.builder()
         .put("p1", "v1")
-        .putAll(ImmutableMap.<String, Object>of("p2", "v2", "p3", "v3"))
-        .put(ImmutableMap.<String, Object>of("p4", "v4").entrySet().iterator().next())
+        .putAll(Map.of("p2", "v2", "p3", "v3"))
+        .put(Map.<String, Object>of("p4", "v4").entrySet().iterator().next())
         .put("p5", "v5")
         .build();
     assertEquals(5, map.size());
