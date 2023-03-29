@@ -24,17 +24,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.annotation.versioning.ProviderType;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedMap;
 
 /**
  * {@link ValueMap} that does not support changing its content.
@@ -129,8 +125,7 @@ public final class ImmutableValueMap implements ValueMap {
 
   @Override
   public String toString() {
-    SortedMap<String, Object> sortedMap = ImmutableSortedMap.copyOf(this.map);
-    return "{" + Joiner.on(",").withKeyValueSeparator("=").join(sortedMap) + "}";
+    return new TreeMap<>(map).toString();
   }
 
   // mutable operations not supported
@@ -190,8 +185,9 @@ public final class ImmutableValueMap implements ValueMap {
    * @param v1 Value 1
    * @return ImmutableValueMap
    */
+  @SuppressWarnings("null")
   public static @NotNull ImmutableValueMap of(@NotNull String k1, @NotNull Object v1) {
-    return new ImmutableValueMap(ImmutableMap.<String, Object>of(k1, v1));
+    return new ImmutableValueMap(Map.of(k1, v1));
   }
 
   /**
@@ -203,9 +199,10 @@ public final class ImmutableValueMap implements ValueMap {
    * @return ImmutableValueMap
    * @throws IllegalArgumentException if duplicate keys are provided
    */
+  @SuppressWarnings("null")
   public static @NotNull ImmutableValueMap of(@NotNull String k1, @NotNull Object v1,
       @NotNull String k2, @NotNull Object v2) {
-    return new ImmutableValueMap(ImmutableMap.<String, Object>of(k1, v1, k2, v2));
+    return new ImmutableValueMap(Map.of(k1, v1, k2, v2));
   }
 
   /**
@@ -219,11 +216,12 @@ public final class ImmutableValueMap implements ValueMap {
    * @return ImmutableValueMap
    * @throws IllegalArgumentException if duplicate keys are provided
    */
+  @SuppressWarnings("null")
   public static @NotNull ImmutableValueMap of(
       @NotNull String k1, @NotNull Object v1,
       @NotNull String k2, @NotNull Object v2,
       @NotNull String k3, @NotNull Object v3) {
-    return new ImmutableValueMap(ImmutableMap.<String, Object>of(k1, v1, k2, v2, k3, v3));
+    return new ImmutableValueMap(Map.of(k1, v1, k2, v2, k3, v3));
   }
 
   /**
@@ -239,13 +237,13 @@ public final class ImmutableValueMap implements ValueMap {
    * @return ImmutableValueMap
    * @throws IllegalArgumentException if duplicate keys are provided
    */
-  @SuppressWarnings({ "java:S107", "PMD.UseObjectForClearerAPI" })
+  @SuppressWarnings({ "null", "java:S107", "PMD.UseObjectForClearerAPI" })
   public static @NotNull ImmutableValueMap of(
       @NotNull String k1, @NotNull Object v1,
       @NotNull String k2, @NotNull Object v2,
       @NotNull String k3, @NotNull Object v3,
       @NotNull String k4, @NotNull Object v4) {
-    return new ImmutableValueMap(ImmutableMap.<String, Object>of(k1, v1, k2, v2, k3, v3, k4, v4));
+    return new ImmutableValueMap(Map.of(k1, v1, k2, v2, k3, v3, k4, v4));
   }
 
   /**
@@ -263,14 +261,14 @@ public final class ImmutableValueMap implements ValueMap {
    * @return ImmutableValueMap
    * @throws IllegalArgumentException if duplicate keys are provided
    */
-  @SuppressWarnings({ "java:S107", "PMD.UseObjectForClearerAPI" })
+  @SuppressWarnings({ "null", "java:S107", "PMD.UseObjectForClearerAPI" })
   public static ImmutableValueMap of(
       @NotNull String k1, @NotNull Object v1,
       @NotNull String k2, @NotNull Object v2,
       @NotNull String k3, @NotNull Object v3,
       @NotNull String k4, @NotNull Object v4,
       @NotNull String k5, @NotNull Object v5) {
-    return new ImmutableValueMap(ImmutableMap.<String, Object>of(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5));
+    return new ImmutableValueMap(Map.of(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5));
   }
 
   // looking for of() with > 5 entries? Use the builder instead.

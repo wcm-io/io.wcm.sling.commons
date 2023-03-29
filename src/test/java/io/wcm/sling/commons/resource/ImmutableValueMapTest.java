@@ -206,7 +206,7 @@ class ImmutableValueMapTest {
         .put("prop2", 55)
         .put("prop0", true)
         .build();
-    assertEquals("{prop0=true,prop1=value1,prop2=55}", map.toString());
+    assertEquals("{prop0=true, prop1=value1, prop2=55}", map.toString());
 
     assertEquals("{}", ImmutableValueMap.of().toString());
   }
