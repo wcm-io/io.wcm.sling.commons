@@ -33,8 +33,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import com.google.common.collect.ImmutableMap;
-
 import io.wcm.testing.mock.aem.junit5.AemContext;
 import io.wcm.testing.mock.aem.junit5.AemContextExtension;
 
@@ -73,34 +71,18 @@ class RequestParamTest {
     request.setParameterMap(paramMap);
   }
 
+  @SuppressWarnings("null")
   protected Map<String, Object> getParamMap() {
-    return ImmutableMap.<String, Object>builder()
-        .put(STRING_PARAM, new String[] {
-            STRING_VALUE
-        })
-        .put(MULTI_STRING_PARAM, MULTI_STRING_VALUE)
-        .put(INTEGER_PARAM, new String[] {
-            Integer.toString(INTEGER_VALUE)
-        })
-        .put(LONG_PARAM, new String[] {
-            Long.toString(LONG_VALUE)
-        })
-        .put(FLOAT_PARAM, new String[] {
-            Float.toString(FLOAT_VALUE)
-        })
-        .put(DOUBLE_PARAM, new String[] {
-            Double.toString(DOUBLE_VALUE)
-        })
-        .put(BOOLEAN_PARAM, new String[] {
-            Boolean.toString(BOOLEAN_VALUE)
-        })
-        .put(ENUM_PARAM, new String[] {
-            ENUM_VALUE.name()
-        })
-        .put(RequestParam.PARAMETER_FORMENCODING, new String[] {
-            StandardCharsets.UTF_8.name()
-        })
-        .build();
+    return Map.of(
+        STRING_PARAM, new String[] { STRING_VALUE },
+        MULTI_STRING_PARAM, MULTI_STRING_VALUE,
+        INTEGER_PARAM, new String[] { Integer.toString(INTEGER_VALUE) },
+        LONG_PARAM, new String[] { Long.toString(LONG_VALUE) },
+        FLOAT_PARAM, new String[] { Float.toString(FLOAT_VALUE) },
+        DOUBLE_PARAM, new String[] { Double.toString(DOUBLE_VALUE) },
+        BOOLEAN_PARAM, new String[] { Boolean.toString(BOOLEAN_VALUE) },
+        ENUM_PARAM, new String[] { ENUM_VALUE.name() },
+        RequestParam.PARAMETER_FORMENCODING, new String[] { StandardCharsets.UTF_8.name() });
   }
 
   enum SAMPLE_ENUM {

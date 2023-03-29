@@ -30,22 +30,23 @@ import org.apache.commons.collections4.IteratorUtils;
 import org.junit.jupiter.api.Test;
 import org.osgi.framework.Constants;
 
-import com.google.common.collect.ImmutableMap;
-
 import io.wcm.sling.commons.osgi.RankedServices.ChangeListener;
 
 @SuppressWarnings({ "deprecation", "null" })
 class RankedServicesTest {
 
   private static final String SERVICE_1 = "service1";
-  private static final Map<String, Object> SERVICE_1_PROPS = ImmutableMap.<String, Object>builder()
-      .put(Constants.SERVICE_RANKING, 50).put(Constants.SERVICE_ID, 1L).build();
+  private static final Map<String, Object> SERVICE_1_PROPS = Map.of(
+      Constants.SERVICE_RANKING, 50,
+      Constants.SERVICE_ID, 1L);
   private static final String SERVICE_2 = "service2";
-  private static final Map<String, Object> SERVICE_2_PROPS = ImmutableMap.<String, Object>builder()
-      .put(Constants.SERVICE_RANKING, 10).put(Constants.SERVICE_ID, 2L).build();
+  private static final Map<String, Object> SERVICE_2_PROPS = Map.of(
+      Constants.SERVICE_RANKING, 10,
+      Constants.SERVICE_ID, 2L);
   private static final String SERVICE_3 = "service3";
-  private static final Map<String, Object> SERVICE_3_PROPS = ImmutableMap.<String, Object>builder()
-      .put(Constants.SERVICE_RANKING, 100).put(Constants.SERVICE_ID, 3L).build();
+  private static final Map<String, Object> SERVICE_3_PROPS = Map.of(
+      Constants.SERVICE_RANKING, 100,
+      Constants.SERVICE_ID, 3L);
 
   @Test
   void testSortedServices() {
