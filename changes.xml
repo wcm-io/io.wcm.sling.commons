@@ -28,7 +28,7 @@
         Switch to Java 11 as minimum version.
       </action>
       <action type="update" dev="sseifert">
-        Eliminate dependency to Guava.
+        Eliminate dependency to Guava. Embed Caffeine as replacement for Guava Cache.
       </action>
     </release>
 
