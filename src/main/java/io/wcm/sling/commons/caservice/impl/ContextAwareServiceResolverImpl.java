@@ -21,7 +21,6 @@ package io.wcm.sling.commons.caservice.impl;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -42,11 +41,9 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.RemovalCause;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.wcm.sling.commons.caservice.ContextAwareService;
@@ -85,20 +82,9 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
 
   private static <S extends ContextAwareService> LoadingCache<String, ContextAwareServiceTracker<S>> buildServiceTrackerCache(
       BundleContext bundleContext) {
-    return CacheBuilder.newBuilder()
-        .removalListener(new RemovalListener<String, ContextAwareServiceTracker<S>>() {
-          @SuppressWarnings("null")
-          @Override
-          public void onRemoval(RemovalNotification<String, ContextAwareServiceTracker<S>> notification) {
-            notification.getValue().dispose();
-          }
-        })
-        .build(new CacheLoader<String, ContextAwareServiceTracker<S>>() {
-          @Override
-          public ContextAwareServiceTracker load(String className) {
-            return new ContextAwareServiceTracker<>(className, bundleContext);
-          }
-        });
+    return Caffeine.newBuilder()
+        .removalListener((String key, ContextAwareServiceTracker<S> value, RemovalCause reason) -> value.dispose())
+        .build(className -> new ContextAwareServiceTracker<>(className, bundleContext));
   }
 
   @Override
@@ -148,12 +134,7 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
       "unchecked"
   })
   private <S extends ContextAwareService> ContextAwareServiceTracker<S> getServiceTracker(Class<S> serviceClass) {
-    try {
-      return (ContextAwareServiceTracker)serviceTrackerCache.get(serviceClass.getName());
-    }
-    catch (ExecutionException ex) {
-      throw new RuntimeException("Error getting service tracker for " + serviceClass.getName() + " from cache.", ex);
-    }
+    return (ContextAwareServiceTracker)serviceTrackerCache.get(serviceClass.getName());
   }
 
   ConcurrentMap<String, ContextAwareServiceTracker<ContextAwareService>> getContextAwareServiceTrackerMap() {
