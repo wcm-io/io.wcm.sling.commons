@@ -66,6 +66,13 @@
     </dependency>
 
     <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+      <version>3.1.5</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
@@ -111,12 +118,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <scope>compile</scope>
@@ -148,6 +149,14 @@
       <plugin>
         <groupId>biz.aQute.bnd</groupId>
         <artifactId>bnd-maven-plugin</artifactId>
+        <configuration>
+          <bnd>
+            <!-- Caffeine is embedded -->
+            Import-Package: \
+              !com.github.benmanes.caffeine.*, \
+              *
+          </bnd>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>biz.aQute.bnd</groupId>
@@ -161,6 +170,42 @@
             <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
           </archive>
         </configuration>
+      </plugin>
+
+      <!-- Embed shaded version of Caffeine to avoid classpath issues in unit tests -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <configuration>
+          <artifactSet>
+            <includes>
+              <include>com.github.ben-manes.caffeine:caffeine</include>
+            </includes>
+          </artifactSet>
+          <relocations>
+            <relocation>
+              <pattern>com.github.benmanes.caffeine</pattern>
+              <shadedPattern>io.wcm.sling.commons.shaded.com.github.benmanes.caffeine</shadedPattern>
+            </relocation>
+          </relocations>
+          <filters>
+            <filter>
+              <artifact>com.github.ben-manes.caffeine:caffeine</artifact>
+              <excludes>
+                <exclude>module-info.class</exclude>
+                <exclude>META-INF/**</exclude>
+              </excludes>
+            </filter>
+          </filters>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
