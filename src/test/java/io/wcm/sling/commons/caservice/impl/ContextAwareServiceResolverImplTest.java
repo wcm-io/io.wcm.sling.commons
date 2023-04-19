@@ -24,14 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import com.google.common.collect.ImmutableList;
 
 import io.wcm.sling.commons.caservice.ContextAwareServiceResolver;
 import io.wcm.sling.commons.caservice.ContextAwareServiceResolver.ResolveAllResult;
@@ -74,7 +73,7 @@ class ContextAwareServiceResolverImplTest {
     assertSame(contentDamImpl, underTest.resolve(DummySpi.class, context.create().resource("/content/dam/test1")));
     assertSame(defaultImpl, underTest.resolve(DummySpi.class, context.create().resource("/etc/test1")));
 
-    assertEquals(ImmutableList.of(contentDamImpl, contentImpl, defaultImpl),
+    assertEquals(List.of(contentDamImpl, contentImpl, defaultImpl),
         underTest.resolveAll(DummySpi.class, context.create().resource("/content/dam/test2")).getServices().collect(Collectors.toList()));
   }
 
@@ -86,9 +85,9 @@ class ContextAwareServiceResolverImplTest {
     assertSame(contentDamImpl, underTest.resolve(DummySpi.class, context.create().resource("/content/dam/test1")));
     assertNull(underTest.resolve(DummySpi.class, context.create().resource("/etc/test1")));
 
-    assertEquals(ImmutableList.of(contentDamImpl, contentImpl),
+    assertEquals(List.of(contentDamImpl, contentImpl),
         underTest.resolveAll(DummySpi.class, context.create().resource("/content/dam/test2")).getServices().collect(Collectors.toList()));
-    assertEquals(ImmutableList.of(contentSampleImpl, contentImpl),
+    assertEquals(List.of(contentSampleImpl, contentImpl),
         underTest.resolveAll(DummySpi.class, context.create().resource("/content/sample/test2")).getServices().collect(Collectors.toList()));
   }
 
@@ -99,7 +98,7 @@ class ContextAwareServiceResolverImplTest {
     context.currentResource(context.create().resource("/content/sample/test1"));
     assertSame(contentSampleImpl, underTest.resolve(DummySpi.class, context.request()));
 
-    assertEquals(ImmutableList.of(contentSampleImpl, contentImpl, defaultImpl),
+    assertEquals(List.of(contentSampleImpl, contentImpl, defaultImpl),
         underTest.resolveAll(DummySpi.class, context.request()).getServices().collect(Collectors.toList()));
   }
 
@@ -115,7 +114,7 @@ class ContextAwareServiceResolverImplTest {
     context.currentResource(context.create().resource("/content/experience-fragments/test1"));
     assertSame(contentSampleImpl, underTest.resolve(DummySpi.class, context.request()));
 
-    assertEquals(ImmutableList.of(contentSampleImpl, contentImpl, defaultImpl),
+    assertEquals(List.of(contentSampleImpl, contentImpl, defaultImpl),
         underTest.resolveAll(DummySpi.class, context.request()).getServices().collect(Collectors.toList()));
   }
 
@@ -125,7 +124,7 @@ class ContextAwareServiceResolverImplTest {
 
     assertSame(defaultImpl, underTest.resolve(DummySpi.class, null));
 
-    assertEquals(ImmutableList.of(defaultImpl), underTest.resolveAll(DummySpi.class, null).getServices().collect(Collectors.toList()));
+    assertEquals(List.of(defaultImpl), underTest.resolveAll(DummySpi.class, null).getServices().collect(Collectors.toList()));
   }
 
   @Test
@@ -148,7 +147,7 @@ class ContextAwareServiceResolverImplTest {
     assertSame(contentDamImplWithBundleHeader, underTest.resolve(DummySpi.class, context.create().resource("/content/dam/test1")));
     assertNull(underTest.resolve(DummySpi.class, context.create().resource("/etc/test1")));
 
-    assertEquals(ImmutableList.of(contentDamImplWithBundleHeader, contentDamImpl, contentImpl),
+    assertEquals(List.of(contentDamImplWithBundleHeader, contentDamImpl, contentImpl),
         underTest.resolveAll(DummySpi.class, context.create().resource("/content/dam/test2")).getServices().collect(Collectors.toList()));
   }
 
@@ -163,7 +162,7 @@ class ContextAwareServiceResolverImplTest {
     assertSame(contentDamImpl, underTest.resolve(DummySpi.class, context.create().resource("/pathprefix/content/dam/test1")));
     assertNull(underTest.resolve(DummySpi.class, context.create().resource("/pathprefix/etc/test1")));
 
-    assertEquals(ImmutableList.of(contentDamImpl, contentImpl),
+    assertEquals(List.of(contentDamImpl, contentImpl),
         underTest.resolveAll(DummySpi.class, context.create().resource("/pathprefix/content/dam/test2")).getServices().collect(Collectors.toList()));
   }
 

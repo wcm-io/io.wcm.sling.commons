@@ -32,10 +32,9 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalNotification;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.RemovalCause;
 
 import io.wcm.sling.commons.caservice.ContextAwareService;
 import io.wcm.sling.commons.caservice.ContextAwareServiceCollectionResolver;
@@ -62,22 +61,19 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
 
   private static <S extends ContextAwareService, D> LoadingCache<ServiceReference<S>, CollectionItemDecoration<S, D>> buildCache(
       @NotNull BiFunction<@NotNull ServiceReference<S>, @Nullable S, @Nullable D> decorator, @NotNull BundleContext bundleContext) {
-    return CacheBuilder.newBuilder()
+    return Caffeine.newBuilder()
         // expire cached entry after 24h
         .expireAfterAccess(24, TimeUnit.HOURS)
         // unget service on removal
-        .removalListener((RemovalNotification<ServiceReference<S>, CollectionItemDecoration<S, D>> notification) -> {
-          log.debug("Remove service {}", notification.getValue());
-          bundleContext.ungetService(notification.getKey());
+        .removalListener((ServiceReference<S> key, CollectionItemDecoration<S, D> value, RemovalCause cause) -> {
+          log.debug("Remove service {}", value);
+          bundleContext.ungetService(key);
         })
         // build cache lazily
-        .build(new CacheLoader<ServiceReference<S>, CollectionItemDecoration<S, D>>() {
-          @Override
-          public CollectionItemDecoration<S, D> load(ServiceReference<S> serviceReference) {
-            CollectionItemDecoration<S, D> item = new CollectionItemDecoration<>(serviceReference, decorator, bundleContext);
-            log.debug("Add service {}", item);
-            return item;
-          }
+        .build((ServiceReference<S> serviceReference) -> {
+          CollectionItemDecoration<S, D> item = new CollectionItemDecoration<>(serviceReference, decorator, bundleContext);
+          log.debug("Add service {}", item);
+          return item;
         });
   }
 
@@ -112,7 +108,7 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
   private @NotNull Stream<CollectionItemDecoration<S, D>> getMatching(@Nullable Adaptable adaptable) {
     String resourcePath = resourcePathResolver.get(adaptable);
     return serviceReferenceCollection.stream()
-        .map(decorationCache::getUnchecked)
+        .map(decorationCache::get)
         .filter(CollectionItemDecoration::isValid)
         .filter(item -> item.matches(resourcePath));
   }

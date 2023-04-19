@@ -54,7 +54,7 @@ Define references to services via Declarative Services:
 ```java
   @Reference(cardinality = ReferenceCardinality.MULTIPLE, fieldOption = FieldOption.UPDATE,
       policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
-  private Collection<ServiceReference<MyService>> services;
+  private SortedSet<ServiceReference<MyService>> services = new ConcurrentSkipListSet<>(Collections.reverseOrder());
 ```
 
 Setup `ContextAwareServiceCollectionResolver` which get's a view filtered by resource context of these services:
@@ -62,7 +62,7 @@ Setup `ContextAwareServiceCollectionResolver` which get's a view filtered by res
 ```java
   @Reference
   private ContextAwareServiceResolver serviceResolver;
-  private ContextAwareServiceCollectionResolver<ConfigurationCategoryProvider, Void> serviceCollectionResolver;
+  private ContextAwareServiceCollectionResolver<MyService, Void> serviceCollectionResolver;
 
   @Activate
   private void activate() {

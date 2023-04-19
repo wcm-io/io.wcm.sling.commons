@@ -27,14 +27,13 @@ import static org.osgi.framework.Constants.SERVICE_RANKING;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Dictionary;
+import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.sling.testing.mock.osgi.MapUtil;
 import org.apache.sling.testing.mock.osgi.MockBundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-
-import com.google.common.collect.ImmutableMap;
 
 import io.wcm.testing.mock.aem.junit5.AemContext;
 
@@ -106,7 +105,7 @@ class TestServices {
   @SuppressWarnings("null")
   DummySpi addContentDamImplWithBundleHeader() {
     // service gets path pattern from bundle header instead of service property
-    ((MockBundle)context.bundleContext().getBundle()).setHeaders(ImmutableMap.of(
+    ((MockBundle)context.bundleContext().getBundle()).setHeaders(Map.of(
         PROPERTY_CONTEXT_PATH_PATTERN, "^/content/dam(/.*)?$"));
     return register(new DummySpiImpl("/content/dam (bundle header)"),
         SERVICE_RANKING, 1000);

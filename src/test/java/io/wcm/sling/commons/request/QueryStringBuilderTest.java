@@ -22,11 +22,13 @@ package io.wcm.sling.commons.request;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.jupiter.api.Test;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.ImmutableSortedSet;
+import org.junit.jupiter.api.Test;
 
 import io.wcm.sling.commons.util.Escape;
 
@@ -61,8 +63,8 @@ class QueryStringBuilderTest {
   void testMulti() {
     assertEquals("p1=value1&p1=value2&p1=&p2=1&p2=2&p3=false&p3=true&p4=abc", new QueryStringBuilder()
         .param("p1", new String[] { "value1", "value2", null })
-        .param("p2", ImmutableList.of(1, 2))
-        .param("p3", ImmutableSortedSet.of(false, true))
+        .param("p2", List.of(1, 2))
+        .param("p3", new TreeSet<>(Set.of(false, true)))
         .param("p4", "abc")
         .build());
   }
@@ -70,12 +72,12 @@ class QueryStringBuilderTest {
   @Test
   void testMap() {
     assertEquals("p1=value1&p1=value2&p1=&p2=1&p2=2&p3=false&p3=true&p4=abc", new QueryStringBuilder()
-        .params(ImmutableSortedMap.of(
+        .params(new TreeMap<>(Map.of(
             "p1", new String[] { "value1", "value2", null },
-            "p2", ImmutableList.of(1, 2),
-            "p3", ImmutableSortedSet.of(false, true),
+            "p2", List.of(1, 2),
+            "p3", new TreeSet<>(Set.of(false, true)),
             "p4", "abc"
-        ))
+        )))
         .build());
   }
 
