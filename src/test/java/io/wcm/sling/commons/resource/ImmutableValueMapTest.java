@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.sling.api.resource.ValueMap;
@@ -107,46 +108,31 @@ class ImmutableValueMapTest {
   @Test
   void testOfx1() {
     ValueMap map = ImmutableValueMap.of("p1", "v1");
-    assertEquals(1, map.size());
-    assertEquals("v1", map.get("p1"));
+    assertWithOrder(map, "p1", "v1");
   }
 
   @Test
   void testOfx2() {
-    ValueMap map = ImmutableValueMap.of("p1", "v1", "p2", "v2");
-    assertEquals(2, map.size());
-    assertEquals("v1", map.get("p1"));
-    assertEquals("v2", map.get("p2"));
+    ValueMap map = ImmutableValueMap.of("p2", "v2", "p1", "v1");
+    assertWithOrder(map, "p2", "v2", "p1", "v1");
   }
 
   @Test
   void testOfx3() {
     ValueMap map = ImmutableValueMap.of("p1", "v1", "p2", "v2", "p3", "v3");
-    assertEquals(3, map.size());
-    assertEquals("v1", map.get("p1"));
-    assertEquals("v2", map.get("p2"));
-    assertEquals("v3", map.get("p3"));
+    assertWithOrder(map, "p1", "v1", "p2", "v2", "p3", "v3");
   }
 
   @Test
   void testOfx4() {
-    ValueMap map = ImmutableValueMap.of("p1", "v1", "p2", "v2", "p3", "v3", "p4", "v4");
-    assertEquals(4, map.size());
-    assertEquals("v1", map.get("p1"));
-    assertEquals("v2", map.get("p2"));
-    assertEquals("v3", map.get("p3"));
-    assertEquals("v4", map.get("p4"));
+    ValueMap map = ImmutableValueMap.of("p3", "v3", "p2", "v2", "p1", "v1", "p4", "v4");
+    assertWithOrder(map, "p3", "v3", "p2", "v2", "p1", "v1", "p4", "v4");
   }
 
   @Test
   void testOfx5() {
-    ValueMap map = ImmutableValueMap.of("p1", "v1", "p2", "v2", "p3", "v3", "p4", "v4", "p5", "v5");
-    assertEquals(5, map.size());
-    assertEquals("v1", map.get("p1"));
-    assertEquals("v2", map.get("p2"));
-    assertEquals("v3", map.get("p3"));
-    assertEquals("v4", map.get("p4"));
-    assertEquals("v5", map.get("p5"));
+    ValueMap map = ImmutableValueMap.of("p1", "v1", "p5", "v5", "p3", "v3", "p4", "v4", "p2", "v2");
+    assertWithOrder(map, "p1", "v1", "p5", "v5", "p3", "v3", "p4", "v4", "p2", "v2");
   }
 
   @Test
@@ -209,6 +195,19 @@ class ImmutableValueMapTest {
     assertEquals("{prop0=true, prop1=value1, prop2=55}", map.toString());
 
     assertEquals("{}", ImmutableValueMap.of().toString());
+  }
+
+  private void assertWithOrder(Map<String, Object> map, Object... items) {
+    int count = items.length / 2;
+    assertEquals(count, map.size(), "map size");
+    Iterator<Map.Entry<String, Object>> entries = map.entrySet().iterator();
+    for (int i = 0; i < items.length - 1; i = i + 2) {
+      Object key = items[i];
+      Object value = items[i + 1];
+      Map.Entry<String, Object> entry = entries.next();
+      assertEquals(key, entry.getKey(), "Key Entry #" + (i / 2));
+      assertEquals(value, entry.getValue(), "Value Entry #" + (i / 2));
+    }
   }
 
 }
