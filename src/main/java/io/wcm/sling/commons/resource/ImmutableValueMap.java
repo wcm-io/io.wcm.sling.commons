@@ -21,7 +21,7 @@ package io.wcm.sling.commons.resource;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -185,9 +185,10 @@ public final class ImmutableValueMap implements ValueMap {
    * @param v1 Value 1
    * @return ImmutableValueMap
    */
-  @SuppressWarnings("null")
   public static @NotNull ImmutableValueMap of(@NotNull String k1, @NotNull Object v1) {
-    return new ImmutableValueMap(Map.of(k1, v1));
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put(k1, v1);
+    return new ImmutableValueMap(Collections.unmodifiableMap(map));
   }
 
   /**
@@ -199,10 +200,12 @@ public final class ImmutableValueMap implements ValueMap {
    * @return ImmutableValueMap
    * @throws IllegalArgumentException if duplicate keys are provided
    */
-  @SuppressWarnings("null")
   public static @NotNull ImmutableValueMap of(@NotNull String k1, @NotNull Object v1,
       @NotNull String k2, @NotNull Object v2) {
-    return new ImmutableValueMap(Map.of(k1, v1, k2, v2));
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put(k1, v1);
+    map.put(k2, v2);
+    return new ImmutableValueMap(Collections.unmodifiableMap(map));
   }
 
   /**
@@ -216,12 +219,15 @@ public final class ImmutableValueMap implements ValueMap {
    * @return ImmutableValueMap
    * @throws IllegalArgumentException if duplicate keys are provided
    */
-  @SuppressWarnings("null")
   public static @NotNull ImmutableValueMap of(
       @NotNull String k1, @NotNull Object v1,
       @NotNull String k2, @NotNull Object v2,
       @NotNull String k3, @NotNull Object v3) {
-    return new ImmutableValueMap(Map.of(k1, v1, k2, v2, k3, v3));
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put(k1, v1);
+    map.put(k2, v2);
+    map.put(k3, v3);
+    return new ImmutableValueMap(Collections.unmodifiableMap(map));
   }
 
   /**
@@ -237,13 +243,18 @@ public final class ImmutableValueMap implements ValueMap {
    * @return ImmutableValueMap
    * @throws IllegalArgumentException if duplicate keys are provided
    */
-  @SuppressWarnings({ "null", "java:S107", "PMD.UseObjectForClearerAPI" })
+  @SuppressWarnings({ "java:S107", "PMD.UseObjectForClearerAPI" })
   public static @NotNull ImmutableValueMap of(
       @NotNull String k1, @NotNull Object v1,
       @NotNull String k2, @NotNull Object v2,
       @NotNull String k3, @NotNull Object v3,
       @NotNull String k4, @NotNull Object v4) {
-    return new ImmutableValueMap(Map.of(k1, v1, k2, v2, k3, v3, k4, v4));
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put(k1, v1);
+    map.put(k2, v2);
+    map.put(k3, v3);
+    map.put(k4, v4);
+    return new ImmutableValueMap(Collections.unmodifiableMap(map));
   }
 
   /**
@@ -261,14 +272,20 @@ public final class ImmutableValueMap implements ValueMap {
    * @return ImmutableValueMap
    * @throws IllegalArgumentException if duplicate keys are provided
    */
-  @SuppressWarnings({ "null", "java:S107", "PMD.UseObjectForClearerAPI" })
+  @SuppressWarnings({ "java:S107", "PMD.UseObjectForClearerAPI" })
   public static ImmutableValueMap of(
       @NotNull String k1, @NotNull Object v1,
       @NotNull String k2, @NotNull Object v2,
       @NotNull String k3, @NotNull Object v3,
       @NotNull String k4, @NotNull Object v4,
       @NotNull String k5, @NotNull Object v5) {
-    return new ImmutableValueMap(Map.of(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5));
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put(k1, v1);
+    map.put(k2, v2);
+    map.put(k3, v3);
+    map.put(k4, v4);
+    map.put(k5, v5);
+    return new ImmutableValueMap(Collections.unmodifiableMap(map));
   }
 
   // looking for of() with > 5 entries? Use the builder instead.
@@ -296,12 +313,7 @@ public final class ImmutableValueMap implements ValueMap {
    * @throws NullPointerException if any key or value in {@code map} is null
    */
   public static @NotNull ImmutableValueMap copyOf(@NotNull Map<String, Object> map) {
-    if (map instanceof ValueMap) {
-      return new ImmutableValueMap((ValueMap)map);
-    }
-    else {
-      return new ImmutableValueMap(map);
-    }
+    return new ImmutableValueMap(Collections.unmodifiableMap(map));
   }
 
   /**
@@ -309,7 +321,7 @@ public final class ImmutableValueMap implements ValueMap {
    */
   public static final class Builder {
 
-    private final @NotNull Map<String, Object> map = new HashMap<>();
+    private final @NotNull Map<String, Object> map = new LinkedHashMap<>();
 
     /**
      * Associates {@code key} with {@code value} in the built map. Duplicate
