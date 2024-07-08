@@ -93,9 +93,9 @@ public final class QueryStringBuilder {
       if (queryString.length() > 0) {
         queryString.append(PARAM_SEPARATOR);
       }
-      queryString.append(Escape.urlEncode(param.getName()));
-      queryString.append(VALUE_SEPARATOR);
-      queryString.append(Escape.urlEncode(param.getValue()));
+      queryString.append(Escape.urlEncode(param.getName()))
+          .append(VALUE_SEPARATOR)
+          .append(Escape.urlEncode(param.getValue()));
     }
 
     if (queryString.length() > 0) {

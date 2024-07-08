@@ -22,7 +22,6 @@ package io.wcm.sling.commons.caservice.impl;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
@@ -56,13 +55,13 @@ class ContextAwareServiceInventoryPrinterTest {
   }
 
   @Test
-  void testNoServiceTracker() throws IOException {
+  void testNoServiceTracker() {
     String result = getResultFromInventoryPrinter(Format.TEXT);
     assertTrue(StringUtils.contains(result, "No context-aware services found."));
   }
 
   @Test
-  void testWithServiceTracker() throws IOException {
+  void testWithServiceTracker() {
     // make dummy call to have a service tracker registered
     contextAwareServiceResolver.resolve(DummySpi.class, null);
 
@@ -71,12 +70,12 @@ class ContextAwareServiceInventoryPrinterTest {
   }
 
   @Test
-  void testNonText() throws IOException {
+  void testNonText() {
     String result = getResultFromInventoryPrinter(Format.HTML);
     assertTrue(StringUtils.isEmpty(result));
   }
 
-  private String getResultFromInventoryPrinter(Format format) throws IOException {
+  private String getResultFromInventoryPrinter(Format format) {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     PrintWriter pw = new PrintWriter(bos);
     underTest.print(pw, format, false);

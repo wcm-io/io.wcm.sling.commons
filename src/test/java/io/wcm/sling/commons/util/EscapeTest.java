@@ -87,7 +87,7 @@ class EscapeTest {
   }
 
   @Test
-  void testJcrQueryContainsExpr() throws Exception {
+  void testJcrQueryContainsExpr() {
     assertEquals("'abc'", Escape.jcrQueryContainsExpr("abc"));
     assertEquals("'a''bc'", Escape.jcrQueryContainsExpr("a'bc"));
     assertEquals("'a''bc'''''", Escape.jcrQueryContainsExpr("a'bc''"));

@@ -45,14 +45,14 @@ public final class ResourceType {
    * /apps prefix for resource types
    * @deprecated Search paths are confurable and should not be hard-coded.
    */
-  @Deprecated
+  @Deprecated(since = "1.1.0")
   public static final String APPS_PREFIX = "/apps/";
 
   /**
    * /libs prefix for resource types
    * @deprecated Search paths are confurable and should not be hard-coded.
    */
-  @Deprecated
+  @Deprecated(since = "1.1.0")
   public static final String LIBS_PREFIX = "/libs/";
 
   /**
@@ -115,7 +115,7 @@ public final class ResourceType {
    * @return Relative resource type
    * @deprecated Please use {@link #makeRelative(String, ResourceResolver)} instead.
    */
-  @Deprecated
+  @Deprecated(since = "1.1.0")
   public static @NotNull String makeRelative(@NotNull String resourceType) {
     if (StringUtils.startsWith(resourceType, APPS_PREFIX)) {
       return resourceType.substring(APPS_PREFIX.length());
@@ -149,7 +149,7 @@ public final class ResourceType {
    * @return <code>true</code> if the resource type equals the given resource type.
    * @deprecated Please use {@link #equals(String, String, ResourceResolver)} instead.
    */
-  @Deprecated
+  @Deprecated(since = "1.1.0")
   public static boolean equals(@NotNull String resourceType, @NotNull String anotherResourceType) {
     return StringUtils.equals(makeRelative(resourceType), makeRelative(anotherResourceType));
   }

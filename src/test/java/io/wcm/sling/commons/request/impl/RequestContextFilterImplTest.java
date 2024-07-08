@@ -56,7 +56,7 @@ class RequestContextFilterImplTest {
   }
 
   @Test
-  void testFilter() throws Exception {
+  void testFilter() throws IOException, ServletException {
     assertNull(underTest.getThreadRequest());
 
     underTest.doFilter(request, response, new FilterChain() {
@@ -70,7 +70,7 @@ class RequestContextFilterImplTest {
   }
 
   @Test
-  void testFilterNested() throws Exception {
+  void testFilterNested() throws IOException, ServletException {
     assertNull(underTest.getThreadRequest());
 
     underTest.doFilter(request, response, new FilterChain() {
@@ -97,7 +97,7 @@ class RequestContextFilterImplTest {
   }
 
   @Test
-  void testWithExeption() throws Exception {
+  void testWithExeption() throws IOException {
     assertNull(underTest.getThreadRequest());
 
     try {

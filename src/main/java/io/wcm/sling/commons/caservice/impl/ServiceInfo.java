@@ -180,10 +180,10 @@ class ServiceInfo<S extends ContextAwareService> {
     if (resourcePath == null) {
       return acceptsContextPathEmpty;
     }
-    if (contextPathRegex != PATTERN_MATCH_ALL && !contextPathRegex.matcher(resourcePath).matches()) {
+    else if (contextPathRegex != PATTERN_MATCH_ALL && !contextPathRegex.matcher(resourcePath).matches()) {
       return false;
     }
-    if (contextPathBlacklistRegex != PATTERN_MATCH_ALL && contextPathBlacklistRegex.matcher(resourcePath).matches()) {
+    else if (contextPathBlacklistRegex != PATTERN_MATCH_ALL && contextPathBlacklistRegex.matcher(resourcePath).matches()) {
       return false;
     }
     return true;

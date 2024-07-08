@@ -133,7 +133,7 @@ public final class ImmutableValueMap implements ValueMap {
    * @deprecated Unsupported operation
    */
   @Override
-  @Deprecated
+  @Deprecated(since = "1.0.0")
   public Object put(String key, Object value) {
     throw new UnsupportedOperationException();
   }
@@ -142,7 +142,7 @@ public final class ImmutableValueMap implements ValueMap {
    * @deprecated Unsupported operation
    */
   @Override
-  @Deprecated
+  @Deprecated(since = "1.0.0")
   public Object remove(Object key) {
     throw new UnsupportedOperationException();
   }
@@ -151,7 +151,7 @@ public final class ImmutableValueMap implements ValueMap {
    * @deprecated Unsupported operation
    */
   @Override
-  @Deprecated
+  @Deprecated(since = "1.0.0")
   public void putAll(Map<? extends String, ? extends Object> m) {
     throw new UnsupportedOperationException();
   }
@@ -160,7 +160,7 @@ public final class ImmutableValueMap implements ValueMap {
    * @deprecated Unsupported operation
    */
   @Override
-  @Deprecated
+  @Deprecated(since = "1.0.0")
   public void clear() {
     throw new UnsupportedOperationException();
   }
@@ -173,7 +173,7 @@ public final class ImmutableValueMap implements ValueMap {
    * @return ImmutableValueMap
    */
   public static @NotNull ImmutableValueMap of() {
-    return new ImmutableValueMap(ValueMap.EMPTY);
+    return new ImmutableValueMap(EMPTY);
   }
 
   /**
@@ -364,7 +364,7 @@ public final class ImmutableValueMap implements ValueMap {
      */
     public @NotNull ImmutableValueMap build() {
       if (map.isEmpty()) {
-        return ImmutableValueMap.of();
+        return of();
       }
       else {
         return new ImmutableValueMap(map);

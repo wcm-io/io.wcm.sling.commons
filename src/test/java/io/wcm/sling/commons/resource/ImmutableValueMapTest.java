@@ -92,10 +92,11 @@ class ImmutableValueMapTest {
 
   @Test
   void testMapPutAll() {
+    Map<String, Object> input = Map.of(
+        "prop4", 25,
+        "prop5", 33);
     assertThrows(UnsupportedOperationException.class, () -> {
-      underTest.putAll(Map.of(
-          "prop4", 25,
-          "prop5", 33));
+      underTest.putAll(input);
     });
   }
 

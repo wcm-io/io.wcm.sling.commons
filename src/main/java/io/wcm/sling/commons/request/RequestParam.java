@@ -274,7 +274,7 @@ public final class RequestParam {
   @SuppressWarnings("unchecked")
   public static <T extends Enum> @Nullable T getEnum(@NotNull ServletRequest request, @NotNull String param, @NotNull Class<T> enumClass,
       @Nullable T defaultValue) {
-    String value = RequestParam.get(request, param);
+    String value = get(request, param);
     if (StringUtils.isNotEmpty(value)) {
       try {
         return (T)Enum.valueOf(enumClass, value);

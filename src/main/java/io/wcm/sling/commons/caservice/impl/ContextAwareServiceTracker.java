@@ -39,6 +39,7 @@ class ContextAwareServiceTracker<S extends ContextAwareService> implements Servi
   private final String serviceClassName;
   private final BundleContext bundleContext;
   private final ServiceTracker<S, ServiceInfo<S>> serviceTracker;
+  @SuppressWarnings("java:S3077") // accept volatile
   private volatile RankedServices<ServiceInfo<S>> rankedServices;
   private volatile long lastServiceChange;
 

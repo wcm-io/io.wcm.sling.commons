@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
  * Helper methods for resource path handling.
  * @deprecated Use <code>io.wcm.wcm.commons.util.Path</code> instead.
  */
-@Deprecated
+@Deprecated(since = "1.2.0")
 public final class ResourcePath {
 
   private ResourcePath() {

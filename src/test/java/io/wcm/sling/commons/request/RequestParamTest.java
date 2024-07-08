@@ -65,7 +65,7 @@ class RequestParamTest {
   private MockSlingHttpServletRequest request;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     request = context.request();
     paramMap = getParamMap();
     request.setParameterMap(paramMap);
