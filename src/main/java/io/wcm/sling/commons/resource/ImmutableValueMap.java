@@ -34,9 +34,11 @@ import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * {@link ValueMap} that does not support changing its content.
+ *
  * <p>
  * All methods that may change the content will throw a {@link UnsupportedOperationException}.
  * </p>
+ *
  * <p>
  * Static convenience methods provide similar behavior as Guava ImmutableMap variants.
  * </p>
@@ -304,6 +306,7 @@ public final class ImmutableValueMap implements ValueMap {
    * duplicate keys (for example, if
    * it is a {@code SortedMap} whose comparator is not <i>consistent with
    * equals</i>), the results of this method are undefined.
+   *
    * <p>
    * Despite the method name, this method attempts to avoid actually copying the data when it is safe to do so. The
    * exact circumstances under which a copy will or will not be performed are undocumented and subject to change.
