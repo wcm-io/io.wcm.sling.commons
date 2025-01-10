@@ -42,5 +42,5 @@ Sources: https://github.com/wcm-io/io.wcm.sling.commons
 
 
 [apidocs]: apidocs/
-[changelog]: changes-report.html
+[changelog]: changes.html
 [caservice]: context-aware-services.html
