@@ -245,7 +245,9 @@ public final class ImmutableValueMap implements ValueMap {
    * @return ImmutableValueMap
    * @throws IllegalArgumentException if duplicate keys are provided
    */
-  @SuppressWarnings({ "java:S107", "PMD.UseObjectForClearerAPI" })
+  @SuppressWarnings({
+      "java:S107", "PMD.UseObjectForClearerAPI"
+  })
   public static @NotNull ImmutableValueMap of(
       @NotNull String k1, @NotNull Object v1,
       @NotNull String k2, @NotNull Object v2,
@@ -274,7 +276,9 @@ public final class ImmutableValueMap implements ValueMap {
    * @return ImmutableValueMap
    * @throws IllegalArgumentException if duplicate keys are provided
    */
-  @SuppressWarnings({ "java:S107", "PMD.UseObjectForClearerAPI" })
+  @SuppressWarnings({
+      "java:S107", "PMD.UseObjectForClearerAPI"
+  })
   public static ImmutableValueMap of(
       @NotNull String k1, @NotNull Object v1,
       @NotNull String k2, @NotNull Object v2,

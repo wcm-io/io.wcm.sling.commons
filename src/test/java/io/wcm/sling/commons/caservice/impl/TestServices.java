@@ -50,6 +50,7 @@ class TestServices {
 
   private final Collection<ServiceReference<DummySpi>> services = new TreeSet<>(
       new Comparator<ServiceReference<DummySpi>>() {
+
         @Override
         public int compare(ServiceReference<DummySpi> o1, ServiceReference<DummySpi> o2) {
           return o2.compareTo(o1);

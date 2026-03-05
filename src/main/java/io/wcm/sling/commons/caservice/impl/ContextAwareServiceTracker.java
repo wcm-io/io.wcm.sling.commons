@@ -89,7 +89,7 @@ class ContextAwareServiceTracker<S extends ContextAwareService> implements Servi
       return Stream.empty();
     }
     return rankedServices.getList().stream()
-        .filter(serviceInfo -> serviceInfo.matches(resourcePath));
+      .filter(serviceInfo -> serviceInfo.matches(resourcePath));
   }
 
   public String getServiceClassName() {

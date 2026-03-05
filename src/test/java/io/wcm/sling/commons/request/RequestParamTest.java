@@ -74,20 +74,35 @@ class RequestParamTest {
   @SuppressWarnings("null")
   protected Map<String, Object> getParamMap() {
     return Map.of(
-        STRING_PARAM, new String[] { STRING_VALUE },
+        STRING_PARAM, new String[] {
+            STRING_VALUE
+        },
         MULTI_STRING_PARAM, MULTI_STRING_VALUE,
-        INTEGER_PARAM, new String[] { Integer.toString(INTEGER_VALUE) },
-        LONG_PARAM, new String[] { Long.toString(LONG_VALUE) },
-        FLOAT_PARAM, new String[] { Float.toString(FLOAT_VALUE) },
-        DOUBLE_PARAM, new String[] { Double.toString(DOUBLE_VALUE) },
-        BOOLEAN_PARAM, new String[] { Boolean.toString(BOOLEAN_VALUE) },
-        ENUM_PARAM, new String[] { ENUM_VALUE.name() },
-        RequestParam.PARAMETER_FORMENCODING, new String[] { StandardCharsets.UTF_8.name() });
+        INTEGER_PARAM, new String[] {
+            Integer.toString(INTEGER_VALUE)
+        },
+        LONG_PARAM, new String[] {
+            Long.toString(LONG_VALUE)
+        },
+        FLOAT_PARAM, new String[] {
+            Float.toString(FLOAT_VALUE)
+        },
+        DOUBLE_PARAM, new String[] {
+            Double.toString(DOUBLE_VALUE)
+        },
+        BOOLEAN_PARAM, new String[] {
+            Boolean.toString(BOOLEAN_VALUE)
+        },
+        ENUM_PARAM, new String[] {
+            ENUM_VALUE.name()
+        },
+        RequestParam.PARAMETER_FORMENCODING, new String[] {
+            StandardCharsets.UTF_8.name()
+        });
   }
 
   enum SAMPLE_ENUM {
-    ENUM_VALUE1,
-    ENUM_VALUE2
+    ENUM_VALUE1, ENUM_VALUE2
   }
 
   @Test

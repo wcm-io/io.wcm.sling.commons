@@ -44,41 +44,44 @@ class QueryStringBuilderTest {
   @Test
   void testSimple() {
     assertEquals("p1=value1&p2=123&p3=true&p4=", new QueryStringBuilder()
-        .param("p1", "value1")
-        .param("p2", 123)
-        .param("p3", true)
-        .param("p4", null)
-        .build());
+      .param("p1", "value1")
+      .param("p2", 123)
+      .param("p3", true)
+      .param("p4", null)
+      .build());
   }
 
   @Test
   void testUrlEncoding() {
     assertEquals("p1=" + Escape.urlEncode(SPECIAL_CHARS) + "&" + Escape.urlEncode(SPECIAL_CHARS) + "=value2", new QueryStringBuilder()
-        .param("p1", SPECIAL_CHARS)
-        .param(SPECIAL_CHARS, "value2")
-        .build());
+      .param("p1", SPECIAL_CHARS)
+      .param(SPECIAL_CHARS, "value2")
+      .build());
   }
 
   @Test
   void testMulti() {
     assertEquals("p1=value1&p1=value2&p1=&p2=1&p2=2&p3=false&p3=true&p4=abc", new QueryStringBuilder()
-        .param("p1", new String[] { "value1", "value2", null })
-        .param("p2", List.of(1, 2))
-        .param("p3", new TreeSet<>(Set.of(false, true)))
-        .param("p4", "abc")
-        .build());
+      .param("p1", new String[] {
+          "value1", "value2", null
+      })
+      .param("p2", List.of(1, 2))
+      .param("p3", new TreeSet<>(Set.of(false, true)))
+      .param("p4", "abc")
+      .build());
   }
 
   @Test
   void testMap() {
     assertEquals("p1=value1&p1=value2&p1=&p2=1&p2=2&p3=false&p3=true&p4=abc", new QueryStringBuilder()
-        .params(new TreeMap<>(Map.of(
-            "p1", new String[] { "value1", "value2", null },
-            "p2", List.of(1, 2),
-            "p3", new TreeSet<>(Set.of(false, true)),
-            "p4", "abc"
-        )))
-        .build());
+      .params(new TreeMap<>(Map.of(
+          "p1", new String[] {
+              "value1", "value2", null
+          },
+          "p2", List.of(1, 2),
+          "p3", new TreeSet<>(Set.of(false, true)),
+          "p4", "abc")))
+      .build());
   }
 
 }

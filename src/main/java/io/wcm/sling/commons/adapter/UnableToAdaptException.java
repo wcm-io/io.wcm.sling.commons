@@ -28,6 +28,7 @@ import org.osgi.annotation.versioning.ProviderType;
  */
 @ProviderType
 public final class UnableToAdaptException extends RuntimeException {
+
   private static final long serialVersionUID = 1L;
 
   /**

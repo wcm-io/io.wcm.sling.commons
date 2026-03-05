@@ -30,6 +30,7 @@ import org.osgi.annotation.versioning.ProviderType;
  */
 @ProviderType
 public final class NameResourceComparator implements Comparator<Resource>, Serializable {
+
   private static final long serialVersionUID = 1L;
 
   @Override

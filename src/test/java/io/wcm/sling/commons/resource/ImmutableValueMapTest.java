@@ -139,11 +139,11 @@ class ImmutableValueMapTest {
   @Test
   void testBuilder() {
     ValueMap map = ImmutableValueMap.builder()
-        .put("p1", "v1")
-        .putAll(Map.of("p2", "v2", "p3", "v3"))
-        .put(Map.<String, Object>of("p4", "v4").entrySet().iterator().next())
-        .put("p5", "v5")
-        .build();
+      .put("p1", "v1")
+      .putAll(Map.of("p2", "v2", "p3", "v3"))
+      .put(Map.<String, Object>of("p4", "v4").entrySet().iterator().next())
+      .put("p5", "v5")
+      .build();
     assertEquals(5, map.size());
     assertEquals("v1", map.get("p1"));
     assertEquals("v2", map.get("p2"));
@@ -168,17 +168,17 @@ class ImmutableValueMapTest {
   @Test
   void testEquals() {
     ValueMap map1 = ImmutableValueMap.builder()
-        .put("prop1", "value1")
-        .put("prop2", 55)
-        .build();
+      .put("prop1", "value1")
+      .put("prop2", 55)
+      .build();
     ValueMap map2 = ImmutableValueMap.builder()
-        .put("prop1", "value1")
-        .put("prop2", 55)
-        .build();
+      .put("prop1", "value1")
+      .put("prop2", 55)
+      .build();
     ValueMap map3 = ImmutableValueMap.builder()
-        .put("prop1", "value2")
-        .put("prop2", 55)
-        .build();
+      .put("prop1", "value2")
+      .put("prop2", 55)
+      .build();
 
     assertEquals(map1, map2);
     assertEquals(map2, map1);
@@ -189,10 +189,10 @@ class ImmutableValueMapTest {
   @Test
   void testToString() {
     ValueMap map = ImmutableValueMap.builder()
-        .put("prop1", "value1")
-        .put("prop2", 55)
-        .put("prop0", true)
-        .build();
+      .put("prop1", "value1")
+      .put("prop2", 55)
+      .put("prop0", true)
+      .build();
     assertEquals("{prop0=true, prop1=value1, prop2=55}", map.toString());
 
     assertEquals("{}", ImmutableValueMap.of().toString());

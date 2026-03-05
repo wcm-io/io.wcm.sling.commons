@@ -38,7 +38,9 @@ import io.wcm.sling.commons.request.RequestContext;
  * Servlet filter that sets the current sling request during processing to make it available via the
  * {@link RequestContext} interface.
  */
-@Component(service = { RequestContext.class, Filter.class }, immediate = true, property = {
+@Component(service = {
+    RequestContext.class, Filter.class
+}, immediate = true, property = {
     "sling.filter.scope=component"
 })
 public final class RequestContextFilterImpl implements RequestContext, Filter {
