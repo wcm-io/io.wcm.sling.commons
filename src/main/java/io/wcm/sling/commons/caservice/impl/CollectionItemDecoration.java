@@ -74,10 +74,10 @@ class CollectionItemDecoration<S extends ContextAwareService, D> {
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("service", service)
-        .append("serviceInfo", serviceInfo)
-        .append("decoration", decoration)
-        .toString();
+      .append("service", service)
+      .append("serviceInfo", serviceInfo)
+      .append("decoration", decoration)
+      .toString();
   }
 
 }

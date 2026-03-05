@@ -55,7 +55,7 @@ public class ContextAwareServiceInventoryPrinter implements InventoryPrinter {
     }
 
     ConcurrentMap<String, ContextAwareServiceTracker<ContextAwareService>> map = ((ContextAwareServiceResolverImpl)contextAwareServiceResolver)
-        .getContextAwareServiceTrackerMap();
+      .getContextAwareServiceTrackerMap();
     if (map.isEmpty()) {
       pw.println();
       pw.println("No context-aware services found.");

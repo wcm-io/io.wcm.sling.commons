@@ -83,8 +83,8 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
   private static <S extends ContextAwareService> LoadingCache<String, ContextAwareServiceTracker<S>> buildServiceTrackerCache(
       BundleContext bundleContext) {
     return Caffeine.newBuilder()
-        .removalListener((String key, ContextAwareServiceTracker<S> value, RemovalCause reason) -> value.dispose())
-        .build(className -> new ContextAwareServiceTracker<>(className, bundleContext));
+      .removalListener((String key, ContextAwareServiceTracker<S> value, RemovalCause reason) -> value.dispose())
+      .build(className -> new ContextAwareServiceTracker<>(className, bundleContext));
   }
 
   @Override
@@ -92,7 +92,7 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
   public <S extends ContextAwareService> S resolve(@NotNull Class<S> serviceClass, @Nullable Adaptable adaptable) {
     ContextAwareServiceTracker<S> serviceTracker = getServiceTracker(serviceClass);
     return getValidServices(getMatchingServiceInfos(serviceTracker, adaptable))
-        .findFirst().orElse(null);
+      .findFirst().orElse(null);
   }
 
   @Override
@@ -144,8 +144,8 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
   @SuppressWarnings("null")
   private static <S extends ContextAwareService> Stream<S> getValidServices(Stream<ServiceInfo<S>> serviceInfos) {
     return serviceInfos
-        .filter(ServiceInfo::isValid)
-        .map(ServiceInfo::getService);
+      .filter(ServiceInfo::isValid)
+      .map(ServiceInfo::getService);
   }
 
   private static <S extends ContextAwareService> @NotNull Supplier<String> buildCombinedKey(long timestamp,

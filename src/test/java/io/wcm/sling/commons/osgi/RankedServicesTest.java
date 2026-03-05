@@ -32,7 +32,9 @@ import org.osgi.framework.Constants;
 
 import io.wcm.sling.commons.osgi.RankedServices.ChangeListener;
 
-@SuppressWarnings({ "deprecation", "null" })
+@SuppressWarnings({
+    "deprecation", "null"
+})
 class RankedServicesTest {
 
   private static final String SERVICE_1 = "service1";

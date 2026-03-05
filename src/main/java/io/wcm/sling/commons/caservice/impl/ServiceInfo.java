@@ -220,6 +220,7 @@ class ServiceInfo<S extends ContextAwareService> {
 
   @SuppressWarnings("java:S1171")
   private static final ToStringStyle TO_STRING_STYLE = new ToStringStyle() {
+
     private static final long serialVersionUID = 1L;
     {
       setUseIdentityHashCode(false);

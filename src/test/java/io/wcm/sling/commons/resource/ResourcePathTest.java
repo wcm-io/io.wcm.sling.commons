@@ -25,7 +25,9 @@ import org.junit.jupiter.api.Test;
 
 import com.day.text.Text;
 
-@SuppressWarnings({ "deprecation", "null" })
+@SuppressWarnings({
+    "deprecation", "null"
+})
 class ResourcePathTest {
 
   @Test
