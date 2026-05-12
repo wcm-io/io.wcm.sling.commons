@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.felix.inventory.Format;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,7 +48,7 @@ class ContextAwareServiceInventoryPrinterTest {
   private ContextAwareServiceInventoryPrinter underTest;
 
   @BeforeEach
-  protected void setUp() {
+  void setUp() {
     // register test services
     new TestServices(context);
     contextAwareServiceResolver = context.registerInjectActivateService(new ContextAwareServiceResolverImpl());
@@ -57,7 +58,7 @@ class ContextAwareServiceInventoryPrinterTest {
   @Test
   void testNoServiceTracker() {
     String result = getResultFromInventoryPrinter(Format.TEXT);
-    assertTrue(StringUtils.contains(result, "No context-aware services found."));
+    assertTrue(Strings.CS.contains(result, "No context-aware services found."));
   }
 
   @Test
@@ -66,7 +67,7 @@ class ContextAwareServiceInventoryPrinterTest {
     contextAwareServiceResolver.resolve(DummySpi.class, null);
 
     String result = getResultFromInventoryPrinter(Format.TEXT);
-    assertTrue(StringUtils.contains(result, DummySpi.class.getName()));
+    assertTrue(Strings.CS.contains(result, DummySpi.class.getName()));
   }
 
   @Test

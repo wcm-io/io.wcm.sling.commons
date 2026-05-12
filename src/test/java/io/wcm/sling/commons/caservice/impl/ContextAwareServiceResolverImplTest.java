@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -153,7 +153,7 @@ class ContextAwareServiceResolverImplTest {
 
   @Test
   void testWithPathPreProcessor() {
-    context.registerService(PathPreprocessor.class, (path, resourceResolver) -> StringUtils.removeStart(path, "/pathprefix"));
+    context.registerService(PathPreprocessor.class, (path, resourceResolver) -> Strings.CS.removeStart(path, "/pathprefix"));
     underTest = context.registerInjectActivateService(new ContextAwareServiceResolverImpl());
 
     assertSame(contentImpl, underTest.resolve(DummySpi.class, context.create().resource("/pathprefix/content/test1")));

@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.jackrabbit.util.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -75,10 +76,10 @@ public final class Escape {
     String text = value.toLowerCase();
 
     // replace some special chars first
-    text = StringUtils.replace(text, "ä", "ae");
-    text = StringUtils.replace(text, "ö", "oe");
-    text = StringUtils.replace(text, "ü", "ue");
-    text = StringUtils.replace(text, "ß", "ss");
+    text = Strings.CS.replace(text, "ä", "ae");
+    text = Strings.CS.replace(text, "ö", "oe");
+    text = Strings.CS.replace(text, "ü", "ue");
+    text = Strings.CS.replace(text, "ß", "ss");
 
     // replace all invalid chars
     StringBuilder sb = new StringBuilder(text);
@@ -119,7 +120,7 @@ public final class Escape {
     if (value == null) {
       throw new IllegalArgumentException("Invalid query string value: " + value);
     }
-    return "'" + StringUtils.replace(value, "'", "''") + "'";
+    return "'" + Strings.CS.replace(value, "'", "''") + "'";
   }
 
   /**
