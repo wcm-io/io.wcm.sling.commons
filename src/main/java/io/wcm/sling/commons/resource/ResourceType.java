@@ -167,6 +167,7 @@ public final class ResourceType {
    *         type. <code>false</code> is also returned if <code>resource</code> or<code>resourceType</code> are
    *         <code>null</code>.
    */
+  @SuppressWarnings("java:S3776") // accept complexity
   public static boolean is(@Nullable Resource resource, @Nullable String resourceType) {
     if (resource == null || resourceType == null) {
       return false;

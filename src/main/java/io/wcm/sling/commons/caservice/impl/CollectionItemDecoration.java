@@ -28,7 +28,6 @@ import org.jetbrains.annotations.Nullable;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.wcm.sling.commons.caservice.ContextAwareService;
 
 /**
@@ -44,7 +43,6 @@ class CollectionItemDecoration<S extends ContextAwareService, D> {
   private final @Nullable D decoration;
   private final ServiceInfo<S> serviceInfo;
 
-  @SuppressFBWarnings("NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE")
   CollectionItemDecoration(@NotNull ServiceReference<S> serviceReference,
       @NotNull BiFunction<@NotNull ServiceReference<S>, @Nullable S, @Nullable D> decorator,
       @NotNull BundleContext bundleContext) {

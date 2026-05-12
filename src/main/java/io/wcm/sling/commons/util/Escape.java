@@ -132,7 +132,7 @@ public final class Escape {
    * @return A valid string literal suitable for use in JCR contains clauses, including enclosing quotes.
    */
   @SuppressWarnings({
-      "null", "java:S2589"
+      "null", "java:S2589", "unused"
   }) // extra null checks for backward compatibility
   public static @NotNull String jcrQueryContainsExpr(@NotNull String value) {
     if (value == null || value.isEmpty()) {

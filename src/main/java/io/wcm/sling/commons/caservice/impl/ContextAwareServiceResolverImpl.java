@@ -45,7 +45,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.wcm.sling.commons.caservice.ContextAwareService;
 import io.wcm.sling.commons.caservice.ContextAwareServiceCollectionResolver;
 import io.wcm.sling.commons.caservice.ContextAwareServiceResolver;
@@ -112,7 +111,6 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
   }
 
   @Override
-  @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION")
   public <S extends ContextAwareService, D> @NotNull ContextAwareServiceCollectionResolver<S, D> getCollectionResolver(
       @NotNull Collection<ServiceReference<S>> serviceReferenceCollection,
       @NotNull BiFunction<@NotNull ServiceReference<S>, @Nullable S, @Nullable D> decorator) {
