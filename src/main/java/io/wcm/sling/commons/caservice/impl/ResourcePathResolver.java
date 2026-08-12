@@ -25,7 +25,6 @@ import org.apache.sling.api.resource.Resource;
 import org.jetbrains.annotations.Nullable;
 
 import com.day.cq.wcm.api.components.ComponentContext;
-import com.day.cq.wcm.commons.WCMUtils;
 
 import io.wcm.sling.commons.caservice.PathPreprocessor;
 
@@ -66,7 +65,7 @@ class ResourcePathResolver {
       // if request has a current page prefer the page content resource as context resource
       // because otherwise included resource e.g. from experience fragments lead to wrong contexts
       SlingHttpServletRequest request = (SlingHttpServletRequest)adaptable;
-      ComponentContext wcmComponentContext = WCMUtils.getComponentContext(request);
+      ComponentContext wcmComponentContext = (ComponentContext)request.getAttribute(ComponentContext.CONTEXT_ATTR_NAME);
       if (wcmComponentContext != null && wcmComponentContext.getPage() != null) {
         return wcmComponentContext.getPage().getContentResource();
       }
