@@ -45,7 +45,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.wcm.sling.commons.caservice.ContextAwareService;
 import io.wcm.sling.commons.caservice.ContextAwareServiceCollectionResolver;
 import io.wcm.sling.commons.caservice.ContextAwareServiceResolver;
@@ -83,8 +82,8 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
   private static <S extends ContextAwareService> LoadingCache<String, ContextAwareServiceTracker<S>> buildServiceTrackerCache(
       BundleContext bundleContext) {
     return Caffeine.newBuilder()
-        .removalListener((String key, ContextAwareServiceTracker<S> value, RemovalCause reason) -> value.dispose())
-        .build(className -> new ContextAwareServiceTracker<>(className, bundleContext));
+      .removalListener((String key, ContextAwareServiceTracker<S> value, RemovalCause reason) -> value.dispose())
+      .build(className -> new ContextAwareServiceTracker<>(className, bundleContext));
   }
 
   @Override
@@ -92,7 +91,7 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
   public <S extends ContextAwareService> S resolve(@NotNull Class<S> serviceClass, @Nullable Adaptable adaptable) {
     ContextAwareServiceTracker<S> serviceTracker = getServiceTracker(serviceClass);
     return getValidServices(getMatchingServiceInfos(serviceTracker, adaptable))
-        .findFirst().orElse(null);
+      .findFirst().orElse(null);
   }
 
   @Override
@@ -112,7 +111,6 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
   }
 
   @Override
-  @SuppressFBWarnings("NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION")
   public <S extends ContextAwareService, D> @NotNull ContextAwareServiceCollectionResolver<S, D> getCollectionResolver(
       @NotNull Collection<ServiceReference<S>> serviceReferenceCollection,
       @NotNull BiFunction<@NotNull ServiceReference<S>, @Nullable S, @Nullable D> decorator) {
@@ -144,8 +142,8 @@ public class ContextAwareServiceResolverImpl implements ContextAwareServiceResol
   @SuppressWarnings("null")
   private static <S extends ContextAwareService> Stream<S> getValidServices(Stream<ServiceInfo<S>> serviceInfos) {
     return serviceInfos
-        .filter(ServiceInfo::isValid)
-        .map(ServiceInfo::getService);
+      .filter(ServiceInfo::isValid)
+      .map(ServiceInfo::getService);
   }
 
   private static <S extends ContextAwareService> @NotNull Supplier<String> buildCombinedKey(long timestamp,

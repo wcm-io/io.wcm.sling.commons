@@ -18,20 +18,19 @@
   limitations under the License.
   #L%
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>io.wcm</groupId>
     <artifactId>io.wcm.parent_toplevel</artifactId>
-    <version>2.2.0</version>
-    <relativePath/>
+    <version>2.9.0</version>
+    <relativePath />
   </parent>
 
   <groupId>io.wcm</groupId>
   <artifactId>io.wcm.sling.commons</artifactId>
-  <version>1.6.4</version>
+  <version>1.7.0</version>
   <packaging>jar</packaging>
 
   <name>Sling Commons</name>
@@ -41,15 +40,15 @@
   <scm>
     <connection>scm:git:https://github.com/wcm-io/io.wcm.sling.commons.git</connection>
     <developerConnection>scm:git:https://github.com/wcm-io/io.wcm.sling.commons.git</developerConnection>
-    <url>https://github.com/wcm-io/io.wcm.sling.commons</url>
     <tag>HEAD</tag>
+    <url>https://github.com/wcm-io/io.wcm.sling.commons</url>
   </scm>
 
   <properties>
     <site.url.module.prefix>sling/commons</site.url.module.prefix>
 
     <!-- Enable reproducible builds -->
-    <project.build.outputTimestamp>2023-07-03T09:55:00Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2026-08-17T08:45:29Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>
@@ -68,23 +67,18 @@
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
-      <version>3.1.5</version>
+      <version>3.2.4</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
+      <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-params</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-launcher</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -100,7 +94,7 @@
     <dependency>
       <groupId>io.wcm</groupId>
       <artifactId>io.wcm.testing.aem-mock.junit5</artifactId>
-      <version>5.1.0</version>
+      <version>5.7.4</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -200,10 +194,10 @@
         </configuration>
         <executions>
           <execution>
-            <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
+            <phase>package</phase>
           </execution>
         </executions>
       </plugin>

@@ -56,10 +56,11 @@ class RequestContextFilterImplTest {
   }
 
   @Test
-  void testFilter() throws Exception {
+  void testFilter() throws IOException, ServletException {
     assertNull(underTest.getThreadRequest());
 
     underTest.doFilter(request, response, new FilterChain() {
+
       @Override
       public void doFilter(ServletRequest req, ServletResponse resp) {
         assertSame(req, underTest.getThreadRequest());
@@ -70,7 +71,7 @@ class RequestContextFilterImplTest {
   }
 
   @Test
-  void testFilterNested() throws Exception {
+  void testFilterNested() throws IOException, ServletException {
     assertNull(underTest.getThreadRequest());
 
     underTest.doFilter(request, response, new FilterChain() {
@@ -81,6 +82,7 @@ class RequestContextFilterImplTest {
         assertSame(request, underTest.getThreadRequest());
 
         underTest.doFilter(request2, resp, new FilterChain() {
+
           @Override
           public void doFilter(ServletRequest req2, ServletResponse resp2) {
             assertSame(req2, underTest.getThreadRequest());
@@ -97,11 +99,12 @@ class RequestContextFilterImplTest {
   }
 
   @Test
-  void testWithExeption() throws Exception {
+  void testWithExeption() throws IOException {
     assertNull(underTest.getThreadRequest());
 
     try {
       underTest.doFilter(request, response, new FilterChain() {
+
         @Override
         public void doFilter(ServletRequest req, ServletResponse resp) throws ServletException {
           throw new ServletException("simulated exception.");

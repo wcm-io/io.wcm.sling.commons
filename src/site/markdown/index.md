@@ -28,7 +28,8 @@ The Sling Commons library contains:
 
 |wcm.io Sling Commons version |AEM version supported
 |-----------------------------|----------------------
-|1.5.x or higher              |AEM 6.5.7+, AEMaaCS
+|1.7.0 or higher              |AEM 6.5.24+, AEM 6.6.2+, AEMaaCS
+|1.5.0 - 1.6.x                |AEM 6.5.7+, AEM 6.6.0+, AEMaaCS
 |1.4.x                        |AEM 6.4+, AEMaaCS
 |1.3.x                        |AEM 6.3+
 |1.0.x - 1.2.x                |AEM 6.1+
@@ -41,5 +42,5 @@ Sources: https://github.com/wcm-io/io.wcm.sling.commons
 
 
 [apidocs]: apidocs/
-[changelog]: changes-report.html
+[changelog]: changes.html
 [caservice]: context-aware-services.html

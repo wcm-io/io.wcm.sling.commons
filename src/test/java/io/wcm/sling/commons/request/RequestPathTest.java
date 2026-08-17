@@ -41,7 +41,7 @@ class RequestPathTest {
   private RequestPathInfo requestPathInfo;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     when(request.getRequestPathInfo()).thenReturn(requestPathInfo);
   }
 

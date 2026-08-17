@@ -1,0 +1,11 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>wcm-io/renovate-config:maven-bundle",
+    "github>wcm-io/renovate-config:automerge-parent",
+    "github>wcm-io/renovate-config:automerge-testing"
+  ],
+  "ignoreDeps": [
+    "org.apache.felix:org.apache.felix.inventory"
+  ]
+}

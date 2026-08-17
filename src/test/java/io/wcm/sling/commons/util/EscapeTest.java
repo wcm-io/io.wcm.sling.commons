@@ -87,7 +87,7 @@ class EscapeTest {
   }
 
   @Test
-  void testJcrQueryContainsExpr() throws Exception {
+  void testJcrQueryContainsExpr() {
     assertEquals("'abc'", Escape.jcrQueryContainsExpr("abc"));
     assertEquals("'a''bc'", Escape.jcrQueryContainsExpr("a'bc"));
     assertEquals("'a''bc'''''", Escape.jcrQueryContainsExpr("a'bc''"));
@@ -121,8 +121,7 @@ class EscapeTest {
         arguments("\\\\\\_", "\\_"),
         arguments("\\%\\_", "%_"),
         arguments("\\_\\%", "_%"),
-        arguments("\\_\\_\\_\\_\\_\\%\\%\\%\\%\\%\\%", "_____%%%%%%")
-    );
+        arguments("\\_\\_\\_\\_\\_\\%\\%\\%\\%\\%\\%", "_____%%%%%%"));
   }
 
 }

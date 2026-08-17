@@ -24,17 +24,20 @@ import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * Marker interface for Context-Aware services.
+ *
  * <p>
  * If multiple implementations of an OSGi service interface or class exists the {@link ContextAwareServiceResolver} can
  * be used to picks the implementation with the best match for the current resource context/path in the resource
  * hierarchy.
  * </p>
+ *
  * <p>
  * This interface has no methods, the metadata for detecting the matching paths is published via the properties
  * declared by the constants of this interface. The properties can be set as service properties or as bundle header.
  * Service property is checked first, if it is not set there the bundle header of the bundle which registered the
  * service is checked as fallback.
  * </p>
+ *
  * <p>
  * If multiple service implementations exist which match for a given resource path the one with the highest service
  * ranking is picked.
@@ -42,9 +45,11 @@ import org.osgi.annotation.versioning.ConsumerType;
  */
 //CHECKSTYLE:OFF
 @ConsumerType
-@SuppressWarnings({ "PMD.ConstantsInInterface", "java:S1214" })
+@SuppressWarnings({
+    "PMD.ConstantsInInterface", "java:S1214"
+})
 public interface ContextAwareService {
-//CHECKSTYLE:ON
+  //CHECKSTYLE:ON
 
   /**
    * Context path whitelist expression.

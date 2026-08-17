@@ -38,12 +38,13 @@ import org.osgi.annotation.versioning.ProviderType;
  * @param <T> Service type
  * @deprecated Please use <code>org.apache.sling.commons.osgi.RankedServices</code> instead.
  */
-@Deprecated
+@Deprecated(since = "1.0.0")
 @ProviderType
 public final class RankedServices<T> implements Iterable<T> {
 
   private final ChangeListener changeListener;
   private final SortedMap<Comparable<Object>, T> serviceMap = new TreeMap<>();
+  @SuppressWarnings("java:S3077") // accept volatile
   private volatile Collection<T> sortedServices = Collections.emptyList();
 
   /**

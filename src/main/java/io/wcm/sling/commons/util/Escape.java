@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.jackrabbit.util.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +36,7 @@ import org.osgi.annotation.versioning.ProviderType;
  */
 @ProviderType
 public final class Escape {
+
   private static final char LIKE_ESCAPE_CHARACTER = '\\';
   private static final Set<Character> LIKE_SPECIAL_CHARACTERS = Set.of('%', '_');
 
@@ -63,7 +65,8 @@ public final class Escape {
   }
 
   /**
-   * Creates a valid node name. Replaces all chars not in a-z, A-Z and 0-9 or '_' with '-' and converts all to lowercase.
+   * Creates a valid node name. Replaces all chars not in a-z, A-Z and 0-9 or '_' with '-' and converts all to
+   * lowercase.
    * @param value String to be labelized.
    * @return The labelized string.
    */
@@ -73,10 +76,10 @@ public final class Escape {
     String text = value.toLowerCase();
 
     // replace some special chars first
-    text = StringUtils.replace(text, "ä", "ae");
-    text = StringUtils.replace(text, "ö", "oe");
-    text = StringUtils.replace(text, "ü", "ue");
-    text = StringUtils.replace(text, "ß", "ss");
+    text = Strings.CS.replace(text, "ä", "ae");
+    text = Strings.CS.replace(text, "ö", "oe");
+    text = Strings.CS.replace(text, "ü", "ue");
+    text = Strings.CS.replace(text, "ß", "ss");
 
     // replace all invalid chars
     StringBuilder sb = new StringBuilder(text);
@@ -110,12 +113,14 @@ public final class Escape {
    * @param value Any string.
    * @return A valid JCR query string literal, including enclosing quotes.
    */
-  @SuppressWarnings({ "unused", "null" })
+  @SuppressWarnings({
+      "unused", "null"
+  })
   public static @NotNull String jcrQueryLiteral(@NotNull String value) {
     if (value == null) {
       throw new IllegalArgumentException("Invalid query string value: " + value);
     }
-    return "'" + StringUtils.replace(value, "'", "''") + "'";
+    return "'" + Strings.CS.replace(value, "'", "''") + "'";
   }
 
   /**
@@ -126,7 +131,9 @@ public final class Escape {
    * @param value Any string.
    * @return A valid string literal suitable for use in JCR contains clauses, including enclosing quotes.
    */
-  @SuppressWarnings({ "null", "java:S2589" }) // extra null checks for backward compatibility
+  @SuppressWarnings({
+      "null", "java:S2589", "unused"
+  }) // extra null checks for backward compatibility
   public static @NotNull String jcrQueryContainsExpr(@NotNull String value) {
     if (value == null || value.isEmpty()) {
       throw new IllegalArgumentException("Invalid query string value: " + value);
@@ -141,7 +148,8 @@ public final class Escape {
    * to obtain their literal value.
    * See JSR-283 specification v2.0, Section 4.6.6.19.
    * @param value Any string.
-   * @return A valid string literal suitable for use as part of JCR like clauses, excluding enclosing quotes, excluding quote escaping.
+   * @return A valid string literal suitable for use as part of JCR like clauses, excluding enclosing quotes, excluding
+   *         quote escaping.
    */
   public static @NotNull String jcrQueryLikeString(@NotNull final String value) {
     final StringBuilder escaped = new StringBuilder();

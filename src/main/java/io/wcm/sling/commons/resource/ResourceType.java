@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.sling.api.SlingException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -45,14 +46,14 @@ public final class ResourceType {
    * /apps prefix for resource types
    * @deprecated Search paths are confurable and should not be hard-coded.
    */
-  @Deprecated
+  @Deprecated(since = "1.1.0")
   public static final String APPS_PREFIX = "/apps/";
 
   /**
    * /libs prefix for resource types
    * @deprecated Search paths are confurable and should not be hard-coded.
    */
-  @Deprecated
+  @Deprecated(since = "1.1.0")
   public static final String LIBS_PREFIX = "/libs/";
 
   /**
@@ -63,7 +64,7 @@ public final class ResourceType {
    * @return Absolute resource type
    */
   public static @NotNull String makeAbsolute(@NotNull String resourceType, @NotNull ResourceResolver resourceResolver) {
-    if (StringUtils.isEmpty(resourceType) || StringUtils.startsWith(resourceType, "/")) {
+    if (StringUtils.isEmpty(resourceType) || Strings.CS.startsWith(resourceType, "/")) {
       return resourceType;
     }
 
@@ -99,7 +100,7 @@ public final class ResourceType {
   public static @NotNull String makeRelative(@NotNull String resourceType, @NotNull ResourceResolver resourceResolver) {
     String[] searchPaths = resourceResolver.getSearchPath();
     for (String prefix : searchPaths) {
-      if (StringUtils.startsWith(resourceType, prefix)) {
+      if (Strings.CS.startsWith(resourceType, prefix)) {
         return resourceType.substring(prefix.length());
       }
     }
@@ -115,7 +116,7 @@ public final class ResourceType {
    * @return Relative resource type
    * @deprecated Please use {@link #makeRelative(String, ResourceResolver)} instead.
    */
-  @Deprecated
+  @Deprecated(since = "1.1.0")
   public static @NotNull String makeRelative(@NotNull String resourceType) {
     if (StringUtils.startsWith(resourceType, APPS_PREFIX)) {
       return resourceType.substring(APPS_PREFIX.length());
@@ -137,7 +138,7 @@ public final class ResourceType {
    */
   public static boolean equals(@NotNull String resourceType, @NotNull String anotherResourceType,
       @NotNull ResourceResolver resourceResolver) {
-    return StringUtils.equals(makeRelative(resourceType, resourceResolver), makeRelative(anotherResourceType, resourceResolver));
+    return Strings.CS.equals(makeRelative(resourceType, resourceResolver), makeRelative(anotherResourceType, resourceResolver));
   }
 
   /**
@@ -149,7 +150,7 @@ public final class ResourceType {
    * @return <code>true</code> if the resource type equals the given resource type.
    * @deprecated Please use {@link #equals(String, String, ResourceResolver)} instead.
    */
-  @Deprecated
+  @Deprecated(since = "1.1.0")
   public static boolean equals(@NotNull String resourceType, @NotNull String anotherResourceType) {
     return StringUtils.equals(makeRelative(resourceType), makeRelative(anotherResourceType));
   }
@@ -166,6 +167,7 @@ public final class ResourceType {
    *         type. <code>false</code> is also returned if <code>resource</code> or<code>resourceType</code> are
    *         <code>null</code>.
    */
+  @SuppressWarnings("java:S3776") // accept complexity
   public static boolean is(@Nullable Resource resource, @Nullable String resourceType) {
     if (resource == null || resourceType == null) {
       return false;

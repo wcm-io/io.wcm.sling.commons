@@ -62,55 +62,55 @@ class ContextAwareServiceCollectionResolverImpl<S extends ContextAwareService, D
   private static <S extends ContextAwareService, D> LoadingCache<ServiceReference<S>, CollectionItemDecoration<S, D>> buildCache(
       @NotNull BiFunction<@NotNull ServiceReference<S>, @Nullable S, @Nullable D> decorator, @NotNull BundleContext bundleContext) {
     return Caffeine.newBuilder()
-        // expire cached entry after 24h
-        .expireAfterAccess(24, TimeUnit.HOURS)
-        // unget service on removal
-        .removalListener((ServiceReference<S> key, CollectionItemDecoration<S, D> value, RemovalCause cause) -> {
-          log.debug("Remove service {}", value);
-          bundleContext.ungetService(key);
-        })
-        // build cache lazily
-        .build((ServiceReference<S> serviceReference) -> {
-          CollectionItemDecoration<S, D> item = new CollectionItemDecoration<>(serviceReference, decorator, bundleContext);
-          log.debug("Add service {}", item);
-          return item;
-        });
+      // expire cached entry after 24h
+      .expireAfterAccess(24, TimeUnit.HOURS)
+      // unget service on removal
+      .removalListener((ServiceReference<S> key, CollectionItemDecoration<S, D> value, RemovalCause cause) -> {
+        log.debug("Remove service {}", value);
+        bundleContext.ungetService(key);
+      })
+      // build cache lazily
+      .build((ServiceReference<S> serviceReference) -> {
+        CollectionItemDecoration<S, D> item = new CollectionItemDecoration<>(serviceReference, decorator, bundleContext);
+        log.debug("Add service {}", item);
+        return item;
+      });
   }
 
   @Override
   public @Nullable S resolve(@Nullable Adaptable adaptable) {
     return getMatching(adaptable)
-        .map(CollectionItemDecoration::getService)
-        .findFirst().orElse(null);
+      .map(CollectionItemDecoration::getService)
+      .findFirst().orElse(null);
   }
 
   @Override
   @SuppressWarnings("null")
   public @NotNull Stream<S> resolveAll(@Nullable Adaptable adaptable) {
     return getMatching(adaptable)
-        .map(CollectionItemDecoration::getService);
+      .map(CollectionItemDecoration::getService);
   }
 
   @Override
   public @Nullable D resolveDecorated(@Nullable Adaptable adaptable) {
     return getMatching(adaptable)
-        .map(CollectionItemDecoration::getDecoration)
-        .findFirst().orElse(null);
+      .map(CollectionItemDecoration::getDecoration)
+      .findFirst().orElse(null);
   }
 
   @Override
   @SuppressWarnings("null")
   public @NotNull Stream<D> resolveAllDecorated(@Nullable Adaptable adaptable) {
     return getMatching(adaptable)
-        .map(CollectionItemDecoration::getDecoration);
+      .map(CollectionItemDecoration::getDecoration);
   }
 
   private @NotNull Stream<CollectionItemDecoration<S, D>> getMatching(@Nullable Adaptable adaptable) {
     String resourcePath = resourcePathResolver.get(adaptable);
     return serviceReferenceCollection.stream()
-        .map(decorationCache::get)
-        .filter(CollectionItemDecoration::isValid)
-        .filter(item -> item.matches(resourcePath));
+      .map(decorationCache::get)
+      .filter(CollectionItemDecoration::isValid)
+      .filter(item -> item.matches(resourcePath));
   }
 
   @Override
