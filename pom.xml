@@ -30,7 +30,7 @@
 
   <groupId>io.wcm</groupId>
   <artifactId>io.wcm.sling.commons</artifactId>
-  <version>1.7.0</version>
+  <version>1.7.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Sling Commons</name>
@@ -48,7 +48,7 @@
     <site.url.module.prefix>sling/commons</site.url.module.prefix>
 
     <!-- Enable reproducible builds -->
-    <project.build.outputTimestamp>2026-08-17T08:45:29Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2026-08-17T08:46:06Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>
